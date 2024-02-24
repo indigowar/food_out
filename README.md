@@ -45,8 +45,6 @@ The task is to implement whole food delivery application with micro-service arch
 
 ### Overview
 
-(./docs/architecture.png)[System Architecture]
-
 ![architecture diagram](./docs/architecture.png "Architecture Diagram")
 
 ### Accounts Service
