@@ -45,7 +45,7 @@ The task is to implement whole food delivery application with micro-service arch
 
 ### Overview
 
-[./docs/architecture.png](System Architecture)
+(./docs/architecture.png)[System Architecture]
 
 ### Accounts Service
 
@@ -69,7 +69,7 @@ Restaurant Service handles restaurant's requests and generates events for the sy
 
 It stores the restaurant specific information in PostgreSQL.
 
-## Courier Service
+### Courier Service
 
 Courier service handles the courier related requests.
 
