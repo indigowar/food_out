@@ -47,6 +47,8 @@ The task is to implement whole food delivery application with micro-service arch
 
 (./docs/architecture.png)[System Architecture]
 
+![architecture diagram](./docs/architecture.png "Architecture Diagram")
+
 ### Accounts Service
 
 Account Service is responsible for managing user accounts.
