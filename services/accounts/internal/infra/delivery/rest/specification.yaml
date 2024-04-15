@@ -1,0 +1,224 @@
+openapi: 3.0.0
+
+info:
+  title: FoodOut's Account Service API
+  description: Account management API for FoodOut system
+  version: 1.0.0
+  contact:
+    name: Max Kamerov
+    email: indigowar.github@gmail.com
+
+
+servers:
+  - url: /api/v1
+    description: Local development server
+  - url: /api/v1
+    description: Staging server
+  - url: /api/v1
+    description: Production server
+
+
+tags:
+  - name: Account
+    description: Operations related to account management
+  - name: Owner
+    description: Operations related to management of account by its owner
+
+paths:
+  /account:
+    get:
+      operationId: GetOwnInfo
+      description: Retrieve info about own account using jwt token
+      tags:
+        - Account
+        - Owner
+      security:
+        - JWTAuth: []
+      responses:
+        '200':
+          description: Returns account data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AccountInfo"
+        '403':
+          description: User is not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        '404':
+          description: Account is not found 
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AccountInfo"
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AccountInfo"
+
+    post:
+      operationId: CreateAccount
+      description: Create a new account
+      tags:
+        - Account
+        - Owner
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AccountCreationInfo"
+      responses:
+        '201':
+          description: Account is created successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AccountId"
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                  $ref: "#/components/schemas/Error"
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AccountInfo"
+
+  /account/{id}:
+    get:
+      operationId: GetAccountInfo
+      description: Get Account info by its ID
+      tags:
+        - Account
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: ID of the account
+      responses:
+        '200':
+          description: Returns account data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AccountInfo"
+        '404':
+          description: Account is not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AccountInfo"
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AccountInfo"
+
+
+  /account/password:
+    put:
+      operationId: UpdatePassword
+      description: Updates Account's password
+      tags:
+        - Account
+        - Owner
+      security:
+        - JWTAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PasswordUpdateInfo"
+      responses:
+        '200':
+          description: Password is changed succesfully
+        '400':
+          description: Provided data is invalid
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        '403':
+          description: User is not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        '404':
+          description: Account is not found 
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AccountInfo"
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AccountInfo"
+
+
+components:
+  securitySchemes:
+    JWTAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    AccountInfo:
+      type: object
+      properties:
+        id:
+          type: string
+        phone:
+          type: string
+        name:
+          type: string
+      required:
+        - id
+        - phone
+    AccountCreationInfo:
+      type: object
+      properties:
+        phone:
+          type: string
+        password:
+          type: string
+        name:
+          type: string
+      required:
+        - phone
+        - password
+    Error:
+      type: object
+      properties:
+        code:
+          type: integer
+        message:
+          type: string
+    AccountId:
+      type: object
+      properties:
+        id:
+          type: string
+      required:
+        - id
+    PasswordUpdateInfo:
+      type: object
+      properties:
+        oldPassword:
+          type: string
+        newPassword:
+          type: string
