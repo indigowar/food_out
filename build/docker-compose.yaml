@@ -1,0 +1,44 @@
+version: '3'
+
+services:
+  traefik:
+    container_name: traefik
+    image: traefik:v2.11
+    restart: unless-stopped
+    privileged: true
+    command:
+      - "--api.insecure=true"
+      - "--providers.docker"
+      - "--entrypoints.web.address=:80"
+    ports:
+      - 80:80
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.traefik.rule=Host(`traefik.localhost`)"
+      - "traefik.http.routers.entrypoints=web"
+      - "traefik.http.services.traefik.loadbalancer.server.port=8080"
+
+  accounts:
+    container_name: accounts_service
+    build:
+      context: ../services/accounts
+      dockerfile: ./build/Dockerfile
+    restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.accounts.rule=Host(`accounts.localhost`)"
+      - "traefik.http.services.accounts.loadbalancer.server.port=80"
+
+  # whomai:
+  #   container_name: whoami
+  #   image: traefik/whoami
+  #   labels:
+  #     - "traefik.enable=true"
+  #     - "traefik.http.routers.whoami.rule=Host(`whoami.localhost`)"
+  #     - "traefik.http.services.whoami.loadbalancer.server.port=80"
+
+networks:
+  default:
+    name: proxy-network
