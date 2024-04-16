@@ -1,4 +1,4 @@
-# food_out
+# Food Out
 
 **Food Out** is a food delivery application, written using Micro-service approach and primarily Go programming language.
 
