@@ -104,6 +104,16 @@ func NewAccount(phone string, password string) (*Account, error) {
 	return account, nil
 }
 
+func NewAccountRaw(id uuid.UUID, phone string, password string, name *string, profile *url.URL) Account {
+	return Account{
+		id:       id,
+		phone:    phone,
+		password: password,
+		name:     name,
+		profile:  profile,
+	}
+}
+
 func (a *Account) ID() uuid.UUID {
 	return a.id
 }
