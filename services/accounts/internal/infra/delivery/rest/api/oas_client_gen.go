@@ -30,6 +30,10 @@ type Invoker interface {
 	//
 	// POST /account
 	CreateAccount(ctx context.Context, request *AccountCreationInfo) (CreateAccountRes, error)
+	// DeleteAccount invokes DeleteAccount operation.
+	//
+	// DELETE /account/{id}
+	DeleteAccount(ctx context.Context, params DeleteAccountParams) (DeleteAccountRes, error)
 	// GetAccountInfo invokes GetAccountInfo operation.
 	//
 	// Get Account info by its ID.
@@ -48,6 +52,10 @@ type Invoker interface {
 	//
 	// PUT /account/password
 	UpdatePassword(ctx context.Context, request *PasswordUpdateInfo) (UpdatePasswordRes, error)
+	// ValidateCredentials invokes ValidateCredentials operation.
+	//
+	// GET /account/credentials
+	ValidateCredentials(ctx context.Context, request OptAccountCredentials) (ValidateCredentialsRes, error)
 }
 
 // Client implements OAS client.
@@ -168,6 +176,94 @@ func (c *Client) sendCreateAccount(ctx context.Context, request *AccountCreation
 
 	stage = "DecodeResponse"
 	result, err := decodeCreateAccountResponse(resp)
+	if err != nil {
+		return res, errors.Wrap(err, "decode response")
+	}
+
+	return result, nil
+}
+
+// DeleteAccount invokes DeleteAccount operation.
+//
+// DELETE /account/{id}
+func (c *Client) DeleteAccount(ctx context.Context, params DeleteAccountParams) (DeleteAccountRes, error) {
+	res, err := c.sendDeleteAccount(ctx, params)
+	return res, err
+}
+
+func (c *Client) sendDeleteAccount(ctx context.Context, params DeleteAccountParams) (res DeleteAccountRes, err error) {
+	otelAttrs := []attribute.KeyValue{
+		otelogen.OperationID("DeleteAccount"),
+		semconv.HTTPMethodKey.String("DELETE"),
+		semconv.HTTPRouteKey.String("/account/{id}"),
+	}
+
+	// Run stopwatch.
+	startTime := time.Now()
+	defer func() {
+		// Use floating point division here for higher precision (instead of Millisecond method).
+		elapsedDuration := time.Since(startTime)
+		c.duration.Record(ctx, float64(float64(elapsedDuration)/float64(time.Millisecond)), metric.WithAttributes(otelAttrs...))
+	}()
+
+	// Increment request counter.
+	c.requests.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+
+	// Start a span for this request.
+	ctx, span := c.cfg.Tracer.Start(ctx, "DeleteAccount",
+		trace.WithAttributes(otelAttrs...),
+		clientSpanKind,
+	)
+	// Track stage for error reporting.
+	var stage string
+	defer func() {
+		if err != nil {
+			span.RecordError(err)
+			span.SetStatus(codes.Error, stage)
+			c.errors.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+		}
+		span.End()
+	}()
+
+	stage = "BuildURL"
+	u := uri.Clone(c.requestURL(ctx))
+	var pathParts [2]string
+	pathParts[0] = "/account/"
+	{
+		// Encode "id" parameter.
+		e := uri.NewPathEncoder(uri.PathEncoderConfig{
+			Param:   "id",
+			Style:   uri.PathStyleSimple,
+			Explode: false,
+		})
+		if err := func() error {
+			return e.EncodeValue(conv.StringToString(params.ID))
+		}(); err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		encoded, err := e.Result()
+		if err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		pathParts[1] = encoded
+	}
+	uri.AddPathParts(u, pathParts[:]...)
+
+	stage = "EncodeRequest"
+	r, err := ht.NewRequest(ctx, "DELETE", u)
+	if err != nil {
+		return res, errors.Wrap(err, "create request")
+	}
+
+	stage = "SendRequest"
+	resp, err := c.cfg.Client.Do(r)
+	if err != nil {
+		return res, errors.Wrap(err, "do request")
+	}
+	defer resp.Body.Close()
+
+	stage = "DecodeResponse"
+	result, err := decodeDeleteAccountResponse(resp)
 	if err != nil {
 		return res, errors.Wrap(err, "decode response")
 	}
@@ -471,6 +567,79 @@ func (c *Client) sendUpdatePassword(ctx context.Context, request *PasswordUpdate
 
 	stage = "DecodeResponse"
 	result, err := decodeUpdatePasswordResponse(resp)
+	if err != nil {
+		return res, errors.Wrap(err, "decode response")
+	}
+
+	return result, nil
+}
+
+// ValidateCredentials invokes ValidateCredentials operation.
+//
+// GET /account/credentials
+func (c *Client) ValidateCredentials(ctx context.Context, request OptAccountCredentials) (ValidateCredentialsRes, error) {
+	res, err := c.sendValidateCredentials(ctx, request)
+	return res, err
+}
+
+func (c *Client) sendValidateCredentials(ctx context.Context, request OptAccountCredentials) (res ValidateCredentialsRes, err error) {
+	otelAttrs := []attribute.KeyValue{
+		otelogen.OperationID("ValidateCredentials"),
+		semconv.HTTPMethodKey.String("GET"),
+		semconv.HTTPRouteKey.String("/account/credentials"),
+	}
+
+	// Run stopwatch.
+	startTime := time.Now()
+	defer func() {
+		// Use floating point division here for higher precision (instead of Millisecond method).
+		elapsedDuration := time.Since(startTime)
+		c.duration.Record(ctx, float64(float64(elapsedDuration)/float64(time.Millisecond)), metric.WithAttributes(otelAttrs...))
+	}()
+
+	// Increment request counter.
+	c.requests.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+
+	// Start a span for this request.
+	ctx, span := c.cfg.Tracer.Start(ctx, "ValidateCredentials",
+		trace.WithAttributes(otelAttrs...),
+		clientSpanKind,
+	)
+	// Track stage for error reporting.
+	var stage string
+	defer func() {
+		if err != nil {
+			span.RecordError(err)
+			span.SetStatus(codes.Error, stage)
+			c.errors.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+		}
+		span.End()
+	}()
+
+	stage = "BuildURL"
+	u := uri.Clone(c.requestURL(ctx))
+	var pathParts [1]string
+	pathParts[0] = "/account/credentials"
+	uri.AddPathParts(u, pathParts[:]...)
+
+	stage = "EncodeRequest"
+	r, err := ht.NewRequest(ctx, "GET", u)
+	if err != nil {
+		return res, errors.Wrap(err, "create request")
+	}
+	if err := encodeValidateCredentialsRequest(request, r); err != nil {
+		return res, errors.Wrap(err, "encode request")
+	}
+
+	stage = "SendRequest"
+	resp, err := c.cfg.Client.Do(r)
+	if err != nil {
+		return res, errors.Wrap(err, "do request")
+	}
+	defer resp.Body.Close()
+
+	stage = "DecodeResponse"
+	result, err := decodeValidateCredentialsResponse(resp)
 	if err != nil {
 		return res, errors.Wrap(err, "decode response")
 	}

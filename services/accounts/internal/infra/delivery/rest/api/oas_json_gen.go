@@ -143,6 +143,119 @@ func (s *AccountCreationInfo) UnmarshalJSON(data []byte) error {
 }
 
 // Encode implements json.Marshaler.
+func (s *AccountCredentials) Encode(e *jx.Encoder) {
+	e.ObjStart()
+	s.encodeFields(e)
+	e.ObjEnd()
+}
+
+// encodeFields encodes fields.
+func (s *AccountCredentials) encodeFields(e *jx.Encoder) {
+	{
+		e.FieldStart("phone")
+		e.Str(s.Phone)
+	}
+	{
+		e.FieldStart("password")
+		e.Str(s.Password)
+	}
+}
+
+var jsonFieldsNameOfAccountCredentials = [2]string{
+	0: "phone",
+	1: "password",
+}
+
+// Decode decodes AccountCredentials from json.
+func (s *AccountCredentials) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode AccountCredentials to nil")
+	}
+	var requiredBitSet [1]uint8
+
+	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
+		switch string(k) {
+		case "phone":
+			requiredBitSet[0] |= 1 << 0
+			if err := func() error {
+				v, err := d.Str()
+				s.Phone = string(v)
+				if err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"phone\"")
+			}
+		case "password":
+			requiredBitSet[0] |= 1 << 1
+			if err := func() error {
+				v, err := d.Str()
+				s.Password = string(v)
+				if err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"password\"")
+			}
+		default:
+			return d.Skip()
+		}
+		return nil
+	}); err != nil {
+		return errors.Wrap(err, "decode AccountCredentials")
+	}
+	// Validate required fields.
+	var failures []validate.FieldError
+	for i, mask := range [1]uint8{
+		0b00000011,
+	} {
+		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
+			// Mask only required fields and check equality to mask using XOR.
+			//
+			// If XOR result is not zero, result is not equal to expected, so some fields are missed.
+			// Bits of fields which would be set are actually bits of missed fields.
+			missed := bits.OnesCount8(result)
+			for bitN := 0; bitN < missed; bitN++ {
+				bitIdx := bits.TrailingZeros8(result)
+				fieldIdx := i*8 + bitIdx
+				var name string
+				if fieldIdx < len(jsonFieldsNameOfAccountCredentials) {
+					name = jsonFieldsNameOfAccountCredentials[fieldIdx]
+				} else {
+					name = strconv.Itoa(fieldIdx)
+				}
+				failures = append(failures, validate.FieldError{
+					Name:  name,
+					Error: validate.ErrFieldRequired,
+				})
+				// Reset bit.
+				result &^= 1 << bitIdx
+			}
+		}
+	}
+	if len(failures) > 0 {
+		return &validate.Error{Fields: failures}
+	}
+
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *AccountCredentials) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *AccountCredentials) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode implements json.Marshaler.
 func (s *AccountId) Encode(e *jx.Encoder) {
 	e.ObjStart()
 	s.encodeFields(e)
@@ -368,6 +481,158 @@ func (s *AccountInfo) UnmarshalJSON(data []byte) error {
 	return s.Decode(d)
 }
 
+// Encode encodes CreateAccountBadRequest as json.
+func (s *CreateAccountBadRequest) Encode(e *jx.Encoder) {
+	unwrapped := (*Error)(s)
+
+	unwrapped.Encode(e)
+}
+
+// Decode decodes CreateAccountBadRequest from json.
+func (s *CreateAccountBadRequest) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode CreateAccountBadRequest to nil")
+	}
+	var unwrapped Error
+	if err := func() error {
+		if err := unwrapped.Decode(d); err != nil {
+			return err
+		}
+		return nil
+	}(); err != nil {
+		return errors.Wrap(err, "alias")
+	}
+	*s = CreateAccountBadRequest(unwrapped)
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *CreateAccountBadRequest) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *CreateAccountBadRequest) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode encodes CreateAccountInternalServerError as json.
+func (s *CreateAccountInternalServerError) Encode(e *jx.Encoder) {
+	unwrapped := (*Error)(s)
+
+	unwrapped.Encode(e)
+}
+
+// Decode decodes CreateAccountInternalServerError from json.
+func (s *CreateAccountInternalServerError) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode CreateAccountInternalServerError to nil")
+	}
+	var unwrapped Error
+	if err := func() error {
+		if err := unwrapped.Decode(d); err != nil {
+			return err
+		}
+		return nil
+	}(); err != nil {
+		return errors.Wrap(err, "alias")
+	}
+	*s = CreateAccountInternalServerError(unwrapped)
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *CreateAccountInternalServerError) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *CreateAccountInternalServerError) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode encodes DeleteAccountInternalServerError as json.
+func (s *DeleteAccountInternalServerError) Encode(e *jx.Encoder) {
+	unwrapped := (*Error)(s)
+
+	unwrapped.Encode(e)
+}
+
+// Decode decodes DeleteAccountInternalServerError from json.
+func (s *DeleteAccountInternalServerError) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode DeleteAccountInternalServerError to nil")
+	}
+	var unwrapped Error
+	if err := func() error {
+		if err := unwrapped.Decode(d); err != nil {
+			return err
+		}
+		return nil
+	}(); err != nil {
+		return errors.Wrap(err, "alias")
+	}
+	*s = DeleteAccountInternalServerError(unwrapped)
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *DeleteAccountInternalServerError) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *DeleteAccountInternalServerError) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode encodes DeleteAccountNotFound as json.
+func (s *DeleteAccountNotFound) Encode(e *jx.Encoder) {
+	unwrapped := (*Error)(s)
+
+	unwrapped.Encode(e)
+}
+
+// Decode decodes DeleteAccountNotFound from json.
+func (s *DeleteAccountNotFound) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode DeleteAccountNotFound to nil")
+	}
+	var unwrapped Error
+	if err := func() error {
+		if err := unwrapped.Decode(d); err != nil {
+			return err
+		}
+		return nil
+	}(); err != nil {
+		return errors.Wrap(err, "alias")
+	}
+	*s = DeleteAccountNotFound(unwrapped)
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *DeleteAccountNotFound) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *DeleteAccountNotFound) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
 // Encode implements json.Marshaler.
 func (s *Error) Encode(e *jx.Encoder) {
 	e.ObjStart()
@@ -450,7 +715,7 @@ func (s *Error) UnmarshalJSON(data []byte) error {
 
 // Encode encodes GetAccountInfoInternalServerError as json.
 func (s *GetAccountInfoInternalServerError) Encode(e *jx.Encoder) {
-	unwrapped := (*AccountInfo)(s)
+	unwrapped := (*Error)(s)
 
 	unwrapped.Encode(e)
 }
@@ -460,7 +725,7 @@ func (s *GetAccountInfoInternalServerError) Decode(d *jx.Decoder) error {
 	if s == nil {
 		return errors.New("invalid: unable to decode GetAccountInfoInternalServerError to nil")
 	}
-	var unwrapped AccountInfo
+	var unwrapped Error
 	if err := func() error {
 		if err := unwrapped.Decode(d); err != nil {
 			return err
@@ -488,7 +753,7 @@ func (s *GetAccountInfoInternalServerError) UnmarshalJSON(data []byte) error {
 
 // Encode encodes GetAccountInfoNotFound as json.
 func (s *GetAccountInfoNotFound) Encode(e *jx.Encoder) {
-	unwrapped := (*AccountInfo)(s)
+	unwrapped := (*Error)(s)
 
 	unwrapped.Encode(e)
 }
@@ -498,7 +763,7 @@ func (s *GetAccountInfoNotFound) Decode(d *jx.Decoder) error {
 	if s == nil {
 		return errors.New("invalid: unable to decode GetAccountInfoNotFound to nil")
 	}
-	var unwrapped AccountInfo
+	var unwrapped Error
 	if err := func() error {
 		if err := unwrapped.Decode(d); err != nil {
 			return err
@@ -524,19 +789,19 @@ func (s *GetAccountInfoNotFound) UnmarshalJSON(data []byte) error {
 	return s.Decode(d)
 }
 
-// Encode encodes GetAccountInfoOK as json.
-func (s *GetAccountInfoOK) Encode(e *jx.Encoder) {
-	unwrapped := (*AccountInfo)(s)
+// Encode encodes GetOwnInfoForbidden as json.
+func (s *GetOwnInfoForbidden) Encode(e *jx.Encoder) {
+	unwrapped := (*Error)(s)
 
 	unwrapped.Encode(e)
 }
 
-// Decode decodes GetAccountInfoOK from json.
-func (s *GetAccountInfoOK) Decode(d *jx.Decoder) error {
+// Decode decodes GetOwnInfoForbidden from json.
+func (s *GetOwnInfoForbidden) Decode(d *jx.Decoder) error {
 	if s == nil {
-		return errors.New("invalid: unable to decode GetAccountInfoOK to nil")
+		return errors.New("invalid: unable to decode GetOwnInfoForbidden to nil")
 	}
-	var unwrapped AccountInfo
+	var unwrapped Error
 	if err := func() error {
 		if err := unwrapped.Decode(d); err != nil {
 			return err
@@ -545,26 +810,26 @@ func (s *GetAccountInfoOK) Decode(d *jx.Decoder) error {
 	}(); err != nil {
 		return errors.Wrap(err, "alias")
 	}
-	*s = GetAccountInfoOK(unwrapped)
+	*s = GetOwnInfoForbidden(unwrapped)
 	return nil
 }
 
 // MarshalJSON implements stdjson.Marshaler.
-func (s *GetAccountInfoOK) MarshalJSON() ([]byte, error) {
+func (s *GetOwnInfoForbidden) MarshalJSON() ([]byte, error) {
 	e := jx.Encoder{}
 	s.Encode(&e)
 	return e.Bytes(), nil
 }
 
 // UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *GetAccountInfoOK) UnmarshalJSON(data []byte) error {
+func (s *GetOwnInfoForbidden) UnmarshalJSON(data []byte) error {
 	d := jx.DecodeBytes(data)
 	return s.Decode(d)
 }
 
 // Encode encodes GetOwnInfoInternalServerError as json.
 func (s *GetOwnInfoInternalServerError) Encode(e *jx.Encoder) {
-	unwrapped := (*AccountInfo)(s)
+	unwrapped := (*Error)(s)
 
 	unwrapped.Encode(e)
 }
@@ -574,7 +839,7 @@ func (s *GetOwnInfoInternalServerError) Decode(d *jx.Decoder) error {
 	if s == nil {
 		return errors.New("invalid: unable to decode GetOwnInfoInternalServerError to nil")
 	}
-	var unwrapped AccountInfo
+	var unwrapped Error
 	if err := func() error {
 		if err := unwrapped.Decode(d); err != nil {
 			return err
@@ -602,7 +867,7 @@ func (s *GetOwnInfoInternalServerError) UnmarshalJSON(data []byte) error {
 
 // Encode encodes GetOwnInfoNotFound as json.
 func (s *GetOwnInfoNotFound) Encode(e *jx.Encoder) {
-	unwrapped := (*AccountInfo)(s)
+	unwrapped := (*Error)(s)
 
 	unwrapped.Encode(e)
 }
@@ -612,7 +877,7 @@ func (s *GetOwnInfoNotFound) Decode(d *jx.Decoder) error {
 	if s == nil {
 		return errors.New("invalid: unable to decode GetOwnInfoNotFound to nil")
 	}
-	var unwrapped AccountInfo
+	var unwrapped Error
 	if err := func() error {
 		if err := unwrapped.Decode(d); err != nil {
 			return err
@@ -638,40 +903,35 @@ func (s *GetOwnInfoNotFound) UnmarshalJSON(data []byte) error {
 	return s.Decode(d)
 }
 
-// Encode encodes GetOwnInfoOK as json.
-func (s *GetOwnInfoOK) Encode(e *jx.Encoder) {
-	unwrapped := (*AccountInfo)(s)
-
-	unwrapped.Encode(e)
+// Encode encodes AccountCredentials as json.
+func (o OptAccountCredentials) Encode(e *jx.Encoder) {
+	if !o.Set {
+		return
+	}
+	o.Value.Encode(e)
 }
 
-// Decode decodes GetOwnInfoOK from json.
-func (s *GetOwnInfoOK) Decode(d *jx.Decoder) error {
-	if s == nil {
-		return errors.New("invalid: unable to decode GetOwnInfoOK to nil")
+// Decode decodes AccountCredentials from json.
+func (o *OptAccountCredentials) Decode(d *jx.Decoder) error {
+	if o == nil {
+		return errors.New("invalid: unable to decode OptAccountCredentials to nil")
 	}
-	var unwrapped AccountInfo
-	if err := func() error {
-		if err := unwrapped.Decode(d); err != nil {
-			return err
-		}
-		return nil
-	}(); err != nil {
-		return errors.Wrap(err, "alias")
+	o.Set = true
+	if err := o.Value.Decode(d); err != nil {
+		return err
 	}
-	*s = GetOwnInfoOK(unwrapped)
 	return nil
 }
 
 // MarshalJSON implements stdjson.Marshaler.
-func (s *GetOwnInfoOK) MarshalJSON() ([]byte, error) {
+func (s OptAccountCredentials) MarshalJSON() ([]byte, error) {
 	e := jx.Encoder{}
 	s.Encode(&e)
 	return e.Bytes(), nil
 }
 
 // UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *GetOwnInfoOK) UnmarshalJSON(data []byte) error {
+func (s *OptAccountCredentials) UnmarshalJSON(data []byte) error {
 	d := jx.DecodeBytes(data)
 	return s.Decode(d)
 }
@@ -904,7 +1164,7 @@ func (s *UpdatePasswordForbidden) UnmarshalJSON(data []byte) error {
 
 // Encode encodes UpdatePasswordInternalServerError as json.
 func (s *UpdatePasswordInternalServerError) Encode(e *jx.Encoder) {
-	unwrapped := (*AccountInfo)(s)
+	unwrapped := (*Error)(s)
 
 	unwrapped.Encode(e)
 }
@@ -914,7 +1174,7 @@ func (s *UpdatePasswordInternalServerError) Decode(d *jx.Decoder) error {
 	if s == nil {
 		return errors.New("invalid: unable to decode UpdatePasswordInternalServerError to nil")
 	}
-	var unwrapped AccountInfo
+	var unwrapped Error
 	if err := func() error {
 		if err := unwrapped.Decode(d); err != nil {
 			return err
@@ -942,7 +1202,7 @@ func (s *UpdatePasswordInternalServerError) UnmarshalJSON(data []byte) error {
 
 // Encode encodes UpdatePasswordNotFound as json.
 func (s *UpdatePasswordNotFound) Encode(e *jx.Encoder) {
-	unwrapped := (*AccountInfo)(s)
+	unwrapped := (*Error)(s)
 
 	unwrapped.Encode(e)
 }
@@ -952,7 +1212,7 @@ func (s *UpdatePasswordNotFound) Decode(d *jx.Decoder) error {
 	if s == nil {
 		return errors.New("invalid: unable to decode UpdatePasswordNotFound to nil")
 	}
-	var unwrapped AccountInfo
+	var unwrapped Error
 	if err := func() error {
 		if err := unwrapped.Decode(d); err != nil {
 			return err
@@ -974,6 +1234,82 @@ func (s *UpdatePasswordNotFound) MarshalJSON() ([]byte, error) {
 
 // UnmarshalJSON implements stdjson.Unmarshaler.
 func (s *UpdatePasswordNotFound) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode encodes ValidateCredentialsBadRequest as json.
+func (s *ValidateCredentialsBadRequest) Encode(e *jx.Encoder) {
+	unwrapped := (*Error)(s)
+
+	unwrapped.Encode(e)
+}
+
+// Decode decodes ValidateCredentialsBadRequest from json.
+func (s *ValidateCredentialsBadRequest) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode ValidateCredentialsBadRequest to nil")
+	}
+	var unwrapped Error
+	if err := func() error {
+		if err := unwrapped.Decode(d); err != nil {
+			return err
+		}
+		return nil
+	}(); err != nil {
+		return errors.Wrap(err, "alias")
+	}
+	*s = ValidateCredentialsBadRequest(unwrapped)
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *ValidateCredentialsBadRequest) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *ValidateCredentialsBadRequest) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode encodes ValidateCredentialsInternalServerError as json.
+func (s *ValidateCredentialsInternalServerError) Encode(e *jx.Encoder) {
+	unwrapped := (*Error)(s)
+
+	unwrapped.Encode(e)
+}
+
+// Decode decodes ValidateCredentialsInternalServerError from json.
+func (s *ValidateCredentialsInternalServerError) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode ValidateCredentialsInternalServerError to nil")
+	}
+	var unwrapped Error
+	if err := func() error {
+		if err := unwrapped.Decode(d); err != nil {
+			return err
+		}
+		return nil
+	}(); err != nil {
+		return errors.Wrap(err, "alias")
+	}
+	*s = ValidateCredentialsInternalServerError(unwrapped)
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *ValidateCredentialsInternalServerError) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *ValidateCredentialsInternalServerError) UnmarshalJSON(data []byte) error {
 	d := jx.DecodeBytes(data)
 	return s.Decode(d)
 }

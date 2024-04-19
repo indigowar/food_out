@@ -14,6 +14,10 @@ type Handler interface {
 	//
 	// POST /account
 	CreateAccount(ctx context.Context, req *AccountCreationInfo) (CreateAccountRes, error)
+	// DeleteAccount implements DeleteAccount operation.
+	//
+	// DELETE /account/{id}
+	DeleteAccount(ctx context.Context, params DeleteAccountParams) (DeleteAccountRes, error)
 	// GetAccountInfo implements GetAccountInfo operation.
 	//
 	// Get Account info by its ID.
@@ -32,6 +36,10 @@ type Handler interface {
 	//
 	// PUT /account/password
 	UpdatePassword(ctx context.Context, req *PasswordUpdateInfo) (UpdatePasswordRes, error)
+	// ValidateCredentials implements ValidateCredentials operation.
+	//
+	// GET /account/credentials
+	ValidateCredentials(ctx context.Context, req OptAccountCredentials) (ValidateCredentialsRes, error)
 }
 
 // Server implements http server based on OpenAPI v3 specification and

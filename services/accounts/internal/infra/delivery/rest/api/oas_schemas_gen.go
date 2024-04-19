@@ -39,6 +39,32 @@ func (s *AccountCreationInfo) SetName(val OptString) {
 	s.Name = val
 }
 
+// Ref: #/components/schemas/AccountCredentials
+type AccountCredentials struct {
+	Phone    string `json:"phone"`
+	Password string `json:"password"`
+}
+
+// GetPhone returns the value of Phone.
+func (s *AccountCredentials) GetPhone() string {
+	return s.Phone
+}
+
+// GetPassword returns the value of Password.
+func (s *AccountCredentials) GetPassword() string {
+	return s.Password
+}
+
+// SetPhone sets the value of Phone.
+func (s *AccountCredentials) SetPhone(val string) {
+	s.Phone = val
+}
+
+// SetPassword sets the value of Password.
+func (s *AccountCredentials) SetPassword(val string) {
+	s.Password = val
+}
+
 // Ref: #/components/schemas/AccountId
 type AccountId struct {
 	ID string `json:"id"`
@@ -54,7 +80,8 @@ func (s *AccountId) SetID(val string) {
 	s.ID = val
 }
 
-func (*AccountId) createAccountRes() {}
+func (*AccountId) createAccountRes()       {}
+func (*AccountId) validateCredentialsRes() {}
 
 // Ref: #/components/schemas/AccountInfo
 type AccountInfo struct {
@@ -93,7 +120,29 @@ func (s *AccountInfo) SetName(val OptString) {
 	s.Name = val
 }
 
-func (*AccountInfo) createAccountRes() {}
+func (*AccountInfo) getAccountInfoRes() {}
+func (*AccountInfo) getOwnInfoRes()     {}
+
+type CreateAccountBadRequest Error
+
+func (*CreateAccountBadRequest) createAccountRes() {}
+
+type CreateAccountInternalServerError Error
+
+func (*CreateAccountInternalServerError) createAccountRes() {}
+
+// DeleteAccountAccepted is response for DeleteAccount operation.
+type DeleteAccountAccepted struct{}
+
+func (*DeleteAccountAccepted) deleteAccountRes() {}
+
+type DeleteAccountInternalServerError Error
+
+func (*DeleteAccountInternalServerError) deleteAccountRes() {}
+
+type DeleteAccountNotFound Error
+
+func (*DeleteAccountNotFound) deleteAccountRes() {}
 
 // Ref: #/components/schemas/Error
 type Error struct {
@@ -121,32 +170,25 @@ func (s *Error) SetMessage(val OptString) {
 	s.Message = val
 }
 
-func (*Error) createAccountRes() {}
-func (*Error) getOwnInfoRes()    {}
-
-type GetAccountInfoInternalServerError AccountInfo
+type GetAccountInfoInternalServerError Error
 
 func (*GetAccountInfoInternalServerError) getAccountInfoRes() {}
 
-type GetAccountInfoNotFound AccountInfo
+type GetAccountInfoNotFound Error
 
 func (*GetAccountInfoNotFound) getAccountInfoRes() {}
 
-type GetAccountInfoOK AccountInfo
+type GetOwnInfoForbidden Error
 
-func (*GetAccountInfoOK) getAccountInfoRes() {}
+func (*GetOwnInfoForbidden) getOwnInfoRes() {}
 
-type GetOwnInfoInternalServerError AccountInfo
+type GetOwnInfoInternalServerError Error
 
 func (*GetOwnInfoInternalServerError) getOwnInfoRes() {}
 
-type GetOwnInfoNotFound AccountInfo
+type GetOwnInfoNotFound Error
 
 func (*GetOwnInfoNotFound) getOwnInfoRes() {}
-
-type GetOwnInfoOK AccountInfo
-
-func (*GetOwnInfoOK) getOwnInfoRes() {}
 
 type JWTAuth struct {
 	Token string
@@ -160,6 +202,52 @@ func (s *JWTAuth) GetToken() string {
 // SetToken sets the value of Token.
 func (s *JWTAuth) SetToken(val string) {
 	s.Token = val
+}
+
+// NewOptAccountCredentials returns new OptAccountCredentials with value set to v.
+func NewOptAccountCredentials(v AccountCredentials) OptAccountCredentials {
+	return OptAccountCredentials{
+		Value: v,
+		Set:   true,
+	}
+}
+
+// OptAccountCredentials is optional AccountCredentials.
+type OptAccountCredentials struct {
+	Value AccountCredentials
+	Set   bool
+}
+
+// IsSet returns true if OptAccountCredentials was set.
+func (o OptAccountCredentials) IsSet() bool { return o.Set }
+
+// Reset unsets value.
+func (o *OptAccountCredentials) Reset() {
+	var v AccountCredentials
+	o.Value = v
+	o.Set = false
+}
+
+// SetTo sets value to v.
+func (o *OptAccountCredentials) SetTo(v AccountCredentials) {
+	o.Set = true
+	o.Value = v
+}
+
+// Get returns value and boolean that denotes whether value was set.
+func (o OptAccountCredentials) Get() (v AccountCredentials, ok bool) {
+	if !o.Set {
+		return v, false
+	}
+	return o.Value, true
+}
+
+// Or returns value if set, or given parameter if does not.
+func (o OptAccountCredentials) Or(d AccountCredentials) AccountCredentials {
+	if v, ok := o.Get(); ok {
+		return v
+	}
+	return d
 }
 
 // NewOptInt returns new OptInt with value set to v.
@@ -288,11 +376,11 @@ type UpdatePasswordForbidden Error
 
 func (*UpdatePasswordForbidden) updatePasswordRes() {}
 
-type UpdatePasswordInternalServerError AccountInfo
+type UpdatePasswordInternalServerError Error
 
 func (*UpdatePasswordInternalServerError) updatePasswordRes() {}
 
-type UpdatePasswordNotFound AccountInfo
+type UpdatePasswordNotFound Error
 
 func (*UpdatePasswordNotFound) updatePasswordRes() {}
 
@@ -300,3 +388,11 @@ func (*UpdatePasswordNotFound) updatePasswordRes() {}
 type UpdatePasswordOK struct{}
 
 func (*UpdatePasswordOK) updatePasswordRes() {}
+
+type ValidateCredentialsBadRequest Error
+
+func (*ValidateCredentialsBadRequest) validateCredentialsRes() {}
+
+type ValidateCredentialsInternalServerError Error
+
+func (*ValidateCredentialsInternalServerError) validateCredentialsRes() {}

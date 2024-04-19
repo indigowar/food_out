@@ -82,6 +82,27 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 					break
 				}
 				switch elem[0] {
+				case 'c': // Prefix: "credentials"
+					origElem := elem
+					if l := len("credentials"); len(elem) >= l && elem[0:l] == "credentials" {
+						elem = elem[l:]
+					} else {
+						break
+					}
+
+					if len(elem) == 0 {
+						// Leaf node.
+						switch r.Method {
+						case "GET":
+							s.handleValidateCredentialsRequest([0]string{}, elemIsEscaped, w, r)
+						default:
+							s.notAllowed(w, r, "GET")
+						}
+
+						return
+					}
+
+					elem = origElem
 				case 'p': // Prefix: "password"
 					origElem := elem
 					if l := len("password"); len(elem) >= l && elem[0:l] == "password" {
@@ -112,12 +133,16 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 				if len(elem) == 0 {
 					// Leaf node.
 					switch r.Method {
+					case "DELETE":
+						s.handleDeleteAccountRequest([1]string{
+							args[0],
+						}, elemIsEscaped, w, r)
 					case "GET":
 						s.handleGetAccountInfoRequest([1]string{
 							args[0],
 						}, elemIsEscaped, w, r)
 					default:
-						s.notAllowed(w, r, "GET")
+						s.notAllowed(w, r, "DELETE,GET")
 					}
 
 					return
@@ -250,6 +275,31 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 					break
 				}
 				switch elem[0] {
+				case 'c': // Prefix: "credentials"
+					origElem := elem
+					if l := len("credentials"); len(elem) >= l && elem[0:l] == "credentials" {
+						elem = elem[l:]
+					} else {
+						break
+					}
+
+					if len(elem) == 0 {
+						switch method {
+						case "GET":
+							// Leaf: ValidateCredentials
+							r.name = "ValidateCredentials"
+							r.summary = ""
+							r.operationID = "ValidateCredentials"
+							r.pathPattern = "/account/credentials"
+							r.args = args
+							r.count = 0
+							return r, true
+						default:
+							return
+						}
+					}
+
+					elem = origElem
 				case 'p': // Prefix: "password"
 					origElem := elem
 					if l := len("password"); len(elem) >= l && elem[0:l] == "password" {
@@ -283,6 +333,15 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 
 				if len(elem) == 0 {
 					switch method {
+					case "DELETE":
+						// Leaf: DeleteAccount
+						r.name = "DeleteAccount"
+						r.summary = ""
+						r.operationID = "DeleteAccount"
+						r.pathPattern = "/account/{id}"
+						r.args = args
+						r.count = 1
+						return r, true
 					case "GET":
 						// Leaf: GetAccountInfo
 						r.name = "GetAccountInfo"

@@ -24,6 +24,7 @@ tags:
   - name: Owner
     description: Operations related to management of account by its owner
 
+
 paths:
   /account:
     get:
@@ -33,7 +34,7 @@ paths:
         - Account
         - Owner
       security:
-        - JWTAuth: []
+        - JWTAuth: [ ]
       responses:
         '200':
           description: Returns account data
@@ -48,17 +49,17 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
         '404':
-          description: Account is not found 
+          description: Account is not found
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/AccountInfo"
+                $ref: "#/components/schemas/Error"
         '500':
           description: Internal server error
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/AccountInfo"
+                $ref: "#/components/schemas/Error"
 
     post:
       operationId: CreateAccount
@@ -84,13 +85,13 @@ paths:
           content:
             application/json:
               schema:
-                  $ref: "#/components/schemas/Error"
+                $ref: "#/components/schemas/Error"
         '500':
           description: Internal server error
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/AccountInfo"
+                $ref: "#/components/schemas/Error"
 
   /account/{id}:
     get:
@@ -117,14 +118,68 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/AccountInfo"
+                $ref: "#/components/schemas/Error"
         '500':
           description: Internal server error
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/AccountInfo"
+                $ref: "#/components/schemas/Error"
 
+    delete:
+      operationId: DeleteAccount
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: ID of the account
+      responses:
+        '202':
+          description: Successfully deleted
+        '404':
+          description: Account is not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /account/credentials:
+    get:
+      operationId: ValidateCredentials
+      tags:
+        - Account
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AccountCredentials'
+      responses:
+        '200':
+          description: Valid user id of this credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountId'
+        '400':
+          description: Credentials are invalid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
 
   /account/password:
     put:
@@ -134,7 +189,7 @@ paths:
         - Account
         - Owner
       security:
-        - JWTAuth: []
+        - JWTAuth: [ ]
       requestBody:
         required: true
         content:
@@ -143,7 +198,7 @@ paths:
               $ref: "#/components/schemas/PasswordUpdateInfo"
       responses:
         '200':
-          description: Password is changed succesfully
+          description: Password is changed successfully
         '400':
           description: Provided data is invalid
           content:
@@ -157,17 +212,17 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
         '404':
-          description: Account is not found 
+          description: Account is not found
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/AccountInfo"
+                $ref: "#/components/schemas/Error"
         '500':
           description: Internal server error
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/AccountInfo"
+                $ref: "#/components/schemas/Error"
 
 
 components:
@@ -222,3 +277,13 @@ components:
           type: string
         newPassword:
           type: string
+    AccountCredentials:
+      type: object
+      properties:
+        phone:
+          type: string
+        password:
+          type: string
+      required:
+        - phone
+        - password

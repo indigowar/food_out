@@ -5,6 +5,10 @@ type CreateAccountRes interface {
 	createAccountRes()
 }
 
+type DeleteAccountRes interface {
+	deleteAccountRes()
+}
+
 type GetAccountInfoRes interface {
 	getAccountInfoRes()
 }
@@ -15,4 +19,8 @@ type GetOwnInfoRes interface {
 
 type UpdatePasswordRes interface {
 	updatePasswordRes()
+}
+
+type ValidateCredentialsRes interface {
+	validateCredentialsRes()
 }

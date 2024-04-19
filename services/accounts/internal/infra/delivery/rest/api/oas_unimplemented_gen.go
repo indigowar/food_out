@@ -22,6 +22,13 @@ func (UnimplementedHandler) CreateAccount(ctx context.Context, req *AccountCreat
 	return r, ht.ErrNotImplemented
 }
 
+// DeleteAccount implements DeleteAccount operation.
+//
+// DELETE /account/{id}
+func (UnimplementedHandler) DeleteAccount(ctx context.Context, params DeleteAccountParams) (r DeleteAccountRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
 // GetAccountInfo implements GetAccountInfo operation.
 //
 // Get Account info by its ID.
@@ -46,5 +53,12 @@ func (UnimplementedHandler) GetOwnInfo(ctx context.Context) (r GetOwnInfoRes, _ 
 //
 // PUT /account/password
 func (UnimplementedHandler) UpdatePassword(ctx context.Context, req *PasswordUpdateInfo) (r UpdatePasswordRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// ValidateCredentials implements ValidateCredentials operation.
+//
+// GET /account/credentials
+func (UnimplementedHandler) ValidateCredentials(ctx context.Context, req OptAccountCredentials) (r ValidateCredentialsRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
