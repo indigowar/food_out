@@ -4,9 +4,8 @@ package api
 
 // Ref: #/components/schemas/AccountCreationInfo
 type AccountCreationInfo struct {
-	Phone    string    `json:"phone"`
-	Password string    `json:"password"`
-	Name     OptString `json:"name"`
+	Phone    string `json:"phone"`
+	Password string `json:"password"`
 }
 
 // GetPhone returns the value of Phone.
@@ -19,11 +18,6 @@ func (s *AccountCreationInfo) GetPassword() string {
 	return s.Password
 }
 
-// GetName returns the value of Name.
-func (s *AccountCreationInfo) GetName() OptString {
-	return s.Name
-}
-
 // SetPhone sets the value of Phone.
 func (s *AccountCreationInfo) SetPhone(val string) {
 	s.Phone = val
@@ -32,11 +26,6 @@ func (s *AccountCreationInfo) SetPhone(val string) {
 // SetPassword sets the value of Password.
 func (s *AccountCreationInfo) SetPassword(val string) {
 	s.Password = val
-}
-
-// SetName sets the value of Name.
-func (s *AccountCreationInfo) SetName(val OptString) {
-	s.Name = val
 }
 
 // Ref: #/components/schemas/AccountCredentials
@@ -85,9 +74,10 @@ func (*AccountId) validateCredentialsRes() {}
 
 // Ref: #/components/schemas/AccountInfo
 type AccountInfo struct {
-	ID    string    `json:"id"`
-	Phone string    `json:"phone"`
-	Name  OptString `json:"name"`
+	ID      string    `json:"id"`
+	Phone   string    `json:"phone"`
+	Name    OptString `json:"name"`
+	Profile OptString `json:"profile"`
 }
 
 // GetID returns the value of ID.
@@ -105,6 +95,11 @@ func (s *AccountInfo) GetName() OptString {
 	return s.Name
 }
 
+// GetProfile returns the value of Profile.
+func (s *AccountInfo) GetProfile() OptString {
+	return s.Profile
+}
+
 // SetID sets the value of ID.
 func (s *AccountInfo) SetID(val string) {
 	s.ID = val
@@ -118,6 +113,11 @@ func (s *AccountInfo) SetPhone(val string) {
 // SetName sets the value of Name.
 func (s *AccountInfo) SetName(val OptString) {
 	s.Name = val
+}
+
+// SetProfile sets the value of Profile.
+func (s *AccountInfo) SetProfile(val OptString) {
+	s.Profile = val
 }
 
 func (*AccountInfo) getAccountInfoRes() {}

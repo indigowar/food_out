@@ -29,18 +29,11 @@ func (s *AccountCreationInfo) encodeFields(e *jx.Encoder) {
 		e.FieldStart("password")
 		e.Str(s.Password)
 	}
-	{
-		if s.Name.Set {
-			e.FieldStart("name")
-			s.Name.Encode(e)
-		}
-	}
 }
 
-var jsonFieldsNameOfAccountCreationInfo = [3]string{
+var jsonFieldsNameOfAccountCreationInfo = [2]string{
 	0: "phone",
 	1: "password",
-	2: "name",
 }
 
 // Decode decodes AccountCreationInfo from json.
@@ -75,16 +68,6 @@ func (s *AccountCreationInfo) Decode(d *jx.Decoder) error {
 				return nil
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"password\"")
-			}
-		case "name":
-			if err := func() error {
-				s.Name.Reset()
-				if err := s.Name.Decode(d); err != nil {
-					return err
-				}
-				return nil
-			}(); err != nil {
-				return errors.Wrap(err, "decode field \"name\"")
 			}
 		default:
 			return d.Skip()
@@ -374,12 +357,19 @@ func (s *AccountInfo) encodeFields(e *jx.Encoder) {
 			s.Name.Encode(e)
 		}
 	}
+	{
+		if s.Profile.Set {
+			e.FieldStart("profile")
+			s.Profile.Encode(e)
+		}
+	}
 }
 
-var jsonFieldsNameOfAccountInfo = [3]string{
+var jsonFieldsNameOfAccountInfo = [4]string{
 	0: "id",
 	1: "phone",
 	2: "name",
+	3: "profile",
 }
 
 // Decode decodes AccountInfo from json.
@@ -424,6 +414,16 @@ func (s *AccountInfo) Decode(d *jx.Decoder) error {
 				return nil
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"name\"")
+			}
+		case "profile":
+			if err := func() error {
+				s.Profile.Reset()
+				if err := s.Profile.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"profile\"")
 			}
 		default:
 			return d.Skip()

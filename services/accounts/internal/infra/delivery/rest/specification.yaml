@@ -241,6 +241,8 @@ components:
           type: string
         name:
           type: string
+        profile:
+          type: string
       required:
         - id
         - phone
@@ -250,8 +252,6 @@ components:
         phone:
           type: string
         password:
-          type: string
-        name:
           type: string
       required:
         - phone
