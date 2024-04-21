@@ -181,7 +181,7 @@ func (svc *Service) GetUserIDByCredentials(ctx context.Context, phone string, pa
 	account, err := svc.storage.GetByPhone(ctx, phone)
 	if err != nil {
 		if errors.Is(err, ErrAccountNotFoundInStorage) {
-			return uuid.UUID{}, ErrNotFound
+			return uuid.UUID{}, ErrInvalidCredentials
 		}
 
 		svc.logger.Warn(
@@ -195,7 +195,7 @@ func (svc *Service) GetUserIDByCredentials(ctx context.Context, phone string, pa
 	}
 
 	if account.Password() != password {
-		return uuid.UUID{}, ErrNotFound
+		return uuid.UUID{}, ErrInvalidCredentials
 	}
 
 	return account.ID(), nil
