@@ -24,6 +24,8 @@ func (UnimplementedHandler) CreateAccount(ctx context.Context, req *AccountCreat
 
 // DeleteAccount implements DeleteAccount operation.
 //
+// Delete user with provided ID.
+//
 // DELETE /account/{id}
 func (UnimplementedHandler) DeleteAccount(ctx context.Context, params DeleteAccountParams) (r DeleteAccountRes, _ error) {
 	return r, ht.ErrNotImplemented

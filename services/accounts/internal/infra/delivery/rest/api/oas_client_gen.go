@@ -32,6 +32,8 @@ type Invoker interface {
 	CreateAccount(ctx context.Context, request *AccountCreationInfo) (CreateAccountRes, error)
 	// DeleteAccount invokes DeleteAccount operation.
 	//
+	// Delete user with provided ID.
+	//
 	// DELETE /account/{id}
 	DeleteAccount(ctx context.Context, params DeleteAccountParams) (DeleteAccountRes, error)
 	// GetAccountInfo invokes GetAccountInfo operation.
@@ -184,6 +186,8 @@ func (c *Client) sendCreateAccount(ctx context.Context, request *AccountCreation
 }
 
 // DeleteAccount invokes DeleteAccount operation.
+//
+// Delete user with provided ID.
 //
 // DELETE /account/{id}
 func (c *Client) DeleteAccount(ctx context.Context, params DeleteAccountParams) (DeleteAccountRes, error) {

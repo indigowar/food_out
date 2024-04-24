@@ -128,6 +128,8 @@ func (s *Server) handleCreateAccountRequest(args [0]string, argsEscaped bool, w 
 
 // handleDeleteAccountRequest handles DeleteAccount operation.
 //
+// Delete user with provided ID.
+//
 // DELETE /account/{id}
 func (s *Server) handleDeleteAccountRequest(args [1]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
 	otelAttrs := []attribute.KeyValue{

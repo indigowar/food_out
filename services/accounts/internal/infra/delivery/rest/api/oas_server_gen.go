@@ -16,6 +16,8 @@ type Handler interface {
 	CreateAccount(ctx context.Context, req *AccountCreationInfo) (CreateAccountRes, error)
 	// DeleteAccount implements DeleteAccount operation.
 	//
+	// Delete user with provided ID.
+	//
 	// DELETE /account/{id}
 	DeleteAccount(ctx context.Context, params DeleteAccountParams) (DeleteAccountRes, error)
 	// GetAccountInfo implements GetAccountInfo operation.

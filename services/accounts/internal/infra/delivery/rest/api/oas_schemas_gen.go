@@ -136,6 +136,10 @@ type DeleteAccountAccepted struct{}
 
 func (*DeleteAccountAccepted) deleteAccountRes() {}
 
+type DeleteAccountBadRequest Error
+
+func (*DeleteAccountBadRequest) deleteAccountRes() {}
+
 type DeleteAccountInternalServerError Error
 
 func (*DeleteAccountInternalServerError) deleteAccountRes() {}

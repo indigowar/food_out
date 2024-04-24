@@ -39,7 +39,27 @@ func (w *Wrapper) CreateAccount(ctx context.Context, req *api.AccountCreationInf
 
 // DeleteAccount implements api.Handler.
 func (w *Wrapper) DeleteAccount(ctx context.Context, params api.DeleteAccountParams) (api.DeleteAccountRes, error) {
-	panic("unimplemented")
+	id, err := uuid.Parse(params.ID)
+	if err != nil {
+		return &api.DeleteAccountBadRequest{
+			Code:    api.NewOptInt(http.StatusBadRequest),
+			Message: api.NewOptString("invalid ID value"),
+		}, nil
+	}
+
+	if err := w.svc.DeleteAccount(ctx, id); err != nil {
+		if errors.Is(err, service.ErrNotFound) {
+			return &api.DeleteAccountNotFound{
+				Message: api.NewOptString(err.Error()),
+			}, err
+		}
+
+		return &api.DeleteAccountInternalServerError{
+			Message: api.NewOptString(err.Error()),
+		}, err
+	}
+
+	return &api.DeleteAccountAccepted{}, err
 }
 
 // GetAccountInfo implements api.Handler.
