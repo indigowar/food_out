@@ -16,6 +16,7 @@ var (
 	ErrNotFound                = errors.New("account is not found")
 	ErrPhoneNumberAlreadyInUse = errors.New("phone number is already in use")
 	ErrInvalidCredentials      = errors.New("invalid credentials")
+	ErrInvalidOldPassword      = errors.New("provided old password is invalid")
 	ErrInvalidValue            = errors.New("provided value is invalid")
 	ErrInternal                = errors.New("internal service error")
 )
@@ -115,7 +116,7 @@ func (svc *Service) DeleteAccount(ctx context.Context, id uuid.UUID) error {
 	return nil
 }
 
-func (svc *Service) UpdatePassword(ctx context.Context, id uuid.UUID, password string) error {
+func (svc *Service) UpdatePassword(ctx context.Context, id uuid.UUID, oldPassword string, password string) error {
 	account, err := svc.GetAccountByID(ctx, id)
 	if err != nil {
 		svc.logger.Info(
@@ -126,6 +127,10 @@ func (svc *Service) UpdatePassword(ctx context.Context, id uuid.UUID, password s
 			"error", err.Error(),
 		)
 		return err
+	}
+
+	if account.Password() != oldPassword {
+		return ErrInvalidOldPassword
 	}
 
 	if err := account.SetPassword(password); err != nil {

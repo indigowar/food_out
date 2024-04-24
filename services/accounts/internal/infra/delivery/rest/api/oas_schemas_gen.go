@@ -344,27 +344,38 @@ func (o OptString) Or(d string) string {
 
 // Ref: #/components/schemas/PasswordUpdateInfo
 type PasswordUpdateInfo struct {
-	OldPassword OptString `json:"oldPassword"`
-	NewPassword OptString `json:"newPassword"`
+	ID          string `json:"id"`
+	OldPassword string `json:"oldPassword"`
+	NewPassword string `json:"newPassword"`
+}
+
+// GetID returns the value of ID.
+func (s *PasswordUpdateInfo) GetID() string {
+	return s.ID
 }
 
 // GetOldPassword returns the value of OldPassword.
-func (s *PasswordUpdateInfo) GetOldPassword() OptString {
+func (s *PasswordUpdateInfo) GetOldPassword() string {
 	return s.OldPassword
 }
 
 // GetNewPassword returns the value of NewPassword.
-func (s *PasswordUpdateInfo) GetNewPassword() OptString {
+func (s *PasswordUpdateInfo) GetNewPassword() string {
 	return s.NewPassword
 }
 
+// SetID sets the value of ID.
+func (s *PasswordUpdateInfo) SetID(val string) {
+	s.ID = val
+}
+
 // SetOldPassword sets the value of OldPassword.
-func (s *PasswordUpdateInfo) SetOldPassword(val OptString) {
+func (s *PasswordUpdateInfo) SetOldPassword(val string) {
 	s.OldPassword = val
 }
 
 // SetNewPassword sets the value of NewPassword.
-func (s *PasswordUpdateInfo) SetNewPassword(val OptString) {
+func (s *PasswordUpdateInfo) SetNewPassword(val string) {
 	s.NewPassword = val
 }
 

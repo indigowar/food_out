@@ -1016,22 +1016,23 @@ func (s *PasswordUpdateInfo) Encode(e *jx.Encoder) {
 // encodeFields encodes fields.
 func (s *PasswordUpdateInfo) encodeFields(e *jx.Encoder) {
 	{
-		if s.OldPassword.Set {
-			e.FieldStart("oldPassword")
-			s.OldPassword.Encode(e)
-		}
+		e.FieldStart("id")
+		e.Str(s.ID)
 	}
 	{
-		if s.NewPassword.Set {
-			e.FieldStart("newPassword")
-			s.NewPassword.Encode(e)
-		}
+		e.FieldStart("oldPassword")
+		e.Str(s.OldPassword)
+	}
+	{
+		e.FieldStart("newPassword")
+		e.Str(s.NewPassword)
 	}
 }
 
-var jsonFieldsNameOfPasswordUpdateInfo = [2]string{
-	0: "oldPassword",
-	1: "newPassword",
+var jsonFieldsNameOfPasswordUpdateInfo = [3]string{
+	0: "id",
+	1: "oldPassword",
+	2: "newPassword",
 }
 
 // Decode decodes PasswordUpdateInfo from json.
@@ -1039,13 +1040,28 @@ func (s *PasswordUpdateInfo) Decode(d *jx.Decoder) error {
 	if s == nil {
 		return errors.New("invalid: unable to decode PasswordUpdateInfo to nil")
 	}
+	var requiredBitSet [1]uint8
 
 	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
 		switch string(k) {
-		case "oldPassword":
+		case "id":
+			requiredBitSet[0] |= 1 << 0
 			if err := func() error {
-				s.OldPassword.Reset()
-				if err := s.OldPassword.Decode(d); err != nil {
+				v, err := d.Str()
+				s.ID = string(v)
+				if err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"id\"")
+			}
+		case "oldPassword":
+			requiredBitSet[0] |= 1 << 1
+			if err := func() error {
+				v, err := d.Str()
+				s.OldPassword = string(v)
+				if err != nil {
 					return err
 				}
 				return nil
@@ -1053,9 +1069,11 @@ func (s *PasswordUpdateInfo) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"oldPassword\"")
 			}
 		case "newPassword":
+			requiredBitSet[0] |= 1 << 2
 			if err := func() error {
-				s.NewPassword.Reset()
-				if err := s.NewPassword.Decode(d); err != nil {
+				v, err := d.Str()
+				s.NewPassword = string(v)
+				if err != nil {
 					return err
 				}
 				return nil
@@ -1068,6 +1086,38 @@ func (s *PasswordUpdateInfo) Decode(d *jx.Decoder) error {
 		return nil
 	}); err != nil {
 		return errors.Wrap(err, "decode PasswordUpdateInfo")
+	}
+	// Validate required fields.
+	var failures []validate.FieldError
+	for i, mask := range [1]uint8{
+		0b00000111,
+	} {
+		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
+			// Mask only required fields and check equality to mask using XOR.
+			//
+			// If XOR result is not zero, result is not equal to expected, so some fields are missed.
+			// Bits of fields which would be set are actually bits of missed fields.
+			missed := bits.OnesCount8(result)
+			for bitN := 0; bitN < missed; bitN++ {
+				bitIdx := bits.TrailingZeros8(result)
+				fieldIdx := i*8 + bitIdx
+				var name string
+				if fieldIdx < len(jsonFieldsNameOfPasswordUpdateInfo) {
+					name = jsonFieldsNameOfPasswordUpdateInfo[fieldIdx]
+				} else {
+					name = strconv.Itoa(fieldIdx)
+				}
+				failures = append(failures, validate.FieldError{
+					Name:  name,
+					Error: validate.ErrFieldRequired,
+				})
+				// Reset bit.
+				result &^= 1 << bitIdx
+			}
+		}
+	}
+	if len(failures) > 0 {
+		return &validate.Error{Fields: failures}
 	}
 
 	return nil

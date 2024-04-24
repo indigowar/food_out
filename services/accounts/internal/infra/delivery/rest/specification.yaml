@@ -187,9 +187,6 @@ paths:
       description: Updates Account's password
       tags:
         - Account
-        - Owner
-      security:
-        - JWTAuth: [ ]
       requestBody:
         required: true
         content:
@@ -273,10 +270,16 @@ components:
     PasswordUpdateInfo:
       type: object
       properties:
+        id:
+          type: string
         oldPassword:
           type: string
         newPassword:
           type: string
+      required:
+        - id
+        - oldPassword
+        - newPassword
     AccountCredentials:
       type: object
       properties:
