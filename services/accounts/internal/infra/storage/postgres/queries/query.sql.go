@@ -38,7 +38,7 @@ func (q *Queries) GetAccountByID(ctx context.Context, id pgtype.UUID) (Account, 
 }
 
 const getAccountByPhone = `-- name: GetAccountByPhone :one
-SELECT id, phone, password, name, profile_picture FROM accounts WHERE phone = $1::string
+SELECT id, phone, password, name, profile_picture FROM accounts WHERE phone = $1::text
 `
 
 func (q *Queries) GetAccountByPhone(ctx context.Context, phone string) (Account, error) {
@@ -88,8 +88,8 @@ const insertAccount = `-- name: InsertAccount :exec
 INSERT INTO accounts (id, phone, password, name, profile_picture)
 VALUES (
     $1::uuid,
-    $2::string,
-    $3::string,
+    $2::text,
+    $3::text,
     $4,
     $5
 )
@@ -117,10 +117,10 @@ func (q *Queries) InsertAccount(ctx context.Context, arg InsertAccountParams) er
 const updateAccount = `-- name: UpdateAccount :exec
 UPDATE accounts
     SET
-        phone = $1::string,
-        password = $2::string,
-        name = $3::string,
-        profile_picture = $4::string
+        phone = $1::text,
+        password = $2::text,
+        name = $3::text,
+        profile_picture = $4::text
     WHERE id = $5::uuid
 `
 
