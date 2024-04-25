@@ -1,7 +1,7 @@
 SERVICE_DIRS := $(wildcard ./services/*)
 
 up:
-	docker-compose -f build/docker-compose.yaml up --build
+	docker-compose -f build/docker-compose.yaml up --build --remove-orphans
 
 run:
 	@echo "coming soon..."

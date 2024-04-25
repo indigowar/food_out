@@ -9,9 +9,13 @@ services:
     command:
       - "--api.insecure=true"
       - "--providers.docker"
+      - "--providers.docker.exposedByDefault=false"
+      - "--providers.docker.network=proxy-network"
       - "--entrypoints.web.address=:80"
     ports:
       - 80:80
+    networks:
+      - traefik-proxy-network
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     labels:
@@ -26,19 +30,35 @@ services:
       context: ../services/accounts
       dockerfile: ./build/Dockerfile
     restart: unless-stopped
+    networks:
+      - traefik-proxy-network
+      - accounts-network
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.accounts.rule=Host(`accounts.localhost`)"
       - "traefik.http.services.accounts.loadbalancer.server.port=80"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: strong_and_complicated_password
+      POSTGRES_DB: accounts
+      POSTGRES_HOST: accounts_db
+      POSTGRES_PORT: 5432
 
-  # whomai:
-  #   container_name: whoami
-  #   image: traefik/whoami
-  #   labels:
-  #     - "traefik.enable=true"
-  #     - "traefik.http.routers.whoami.rule=Host(`whoami.localhost`)"
-  #     - "traefik.http.services.whoami.loadbalancer.server.port=80"
+  accounts_database:
+    container_name: account_db
+    image: postgres:15-alpine
+    restart: unless-stopped
+    networks:
+      - accounts-network
+    volumes:
+      - ../.volumes/accounts_db:/var/lib/postgresql/data:Z
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: strong_and_complicated_password
+      POSTGRES_DB: accounts
 
 networks:
-  default:
+  traefik-proxy-network:
     name: proxy-network
+  accounts-network:
+    name: accounts-network
