@@ -30,6 +30,8 @@ services:
       context: ../services/accounts
       dockerfile: ./build/Dockerfile
     restart: unless-stopped
+    depends_on:
+      - accounts_database
     networks:
       - traefik-proxy-network
       - accounts-network
@@ -43,9 +45,10 @@ services:
       POSTGRES_DB: accounts
       POSTGRES_HOST: accounts_db
       POSTGRES_PORT: 5432
+      SECURITY_KEY: "security key"
 
   accounts_database:
-    container_name: account_db
+    container_name: accounts_db
     image: postgres:15-alpine
     restart: unless-stopped
     networks:
