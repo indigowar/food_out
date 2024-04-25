@@ -5,6 +5,7 @@ go 1.21.9
 require (
 	github.com/go-faster/errors v0.7.1
 	github.com/go-faster/jx v1.1.0
+	github.com/golang-jwt/jwt/v5 v5.2.1
 	github.com/google/uuid v1.6.0
 	github.com/jackc/pgx/v5 v5.5.5
 	github.com/ogen-go/ogen v1.0.0
@@ -21,12 +22,12 @@ require (
 	github.com/go-faster/yaml v0.4.6 // indirect
 	github.com/go-logr/logr v1.4.1 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
-	github.com/golang-jwt/jwt/v5 v5.2.1 // indirect
 	github.com/jackc/pgpassfile v1.0.0 // indirect
 	github.com/jackc/pgservicefile v0.0.0-20221227161230-091c0ba34f0a // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/segmentio/asm v1.2.0 // indirect
+	github.com/sqlc-dev/sqlc v1.26.0
 	go.uber.org/zap v1.27.0 // indirect
 	golang.org/x/crypto v0.21.0 // indirect
 	golang.org/x/exp v0.0.0-20240409090435-93d18d7e34b8 // indirect
