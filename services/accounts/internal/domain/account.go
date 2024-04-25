@@ -126,7 +126,7 @@ func (a *Account) SetPhone(newPhone string) error {
 	if err := ValidatePhoneNumber(newPhone); err != nil {
 		return err
 	}
-	a.password = newPhone
+	a.phone = newPhone
 	return nil
 }
 
