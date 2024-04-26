@@ -60,8 +60,35 @@ services:
       POSTGRES_PASSWORD: strong_and_complicated_password
       POSTGRES_DB: accounts
 
+  auth_service:
+    container_name: auth_service
+    build:
+      context: ../services/auth
+      dockerfile: ./build/Dockerfile
+    restart: unless-stopped
+    # depends_on:
+    #   - auth_storage
+    networks:
+      - traefik-proxy-network
+      - auth-network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.auth.rule=Host(`auth.localhost`)"
+      - "traefik.http.services.auth.loadbalancer.server.port=80"
+
+  # auth_storage:
+  #   container_name: auth_storage
+  #   image: valkey:7.2-alpine
+  #   restart: unless-stopped
+  #   networks:
+  #     - auth-network
+  #   volumes:
+  #     - ../.volumes/auth_storage:
+
 networks:
   traefik-proxy-network:
     name: proxy-network
   accounts-network:
     name: accounts-network
+  auth-network:
+    name: auth-network
