@@ -1,0 +1,178 @@
+openapi: 3.0.0
+
+
+info:
+  title: FoodOut's Auth Service API
+  description: Auth management API for FoodOut system
+  version: 1.0.0
+  contact:
+    name: Max Kamerov
+    email: a10levsion@gmail.com
+
+
+servers:
+  - url: /api/v1
+    description: Local development server
+  - url: /api/v1
+    description: Staging server
+  - url: /api/v1
+    description: Production server
+
+
+tags:
+  - name: auth
+    description: Operations related to user auth
+
+paths:
+  /login:
+    post:
+      operationId: LogIn
+      description: Log into account and create a session
+      tags:
+        - auth
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Credentials"
+      responses:
+        "200":
+          description: Successfully logged into account
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TokenPair"
+        "400":
+          description: Provided Values are invalid
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Unexpected service error occurred
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /logout:
+    post:
+      operationId: LogoutFromSession
+      description: Log out from the account using refresh token
+      tags:
+        - auth
+      security:
+        - refreshAuth: []
+      responses:
+        "200":
+          description: Log out successfully
+        "400":
+          description: Invalid request, probably something wrong with the token
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Unexpected service error occurred
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /access:
+    post:
+      operationId: RefreshAccessToken
+      description: create a new access token using refresh token
+      tags:
+        - auth
+      security:
+        - refreshAuth: []
+      responses:
+        "200":
+          description: Successfully refreshed the access token
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AccessToken"
+        "400":
+          description: Invalid request, probably something wrong with the token
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Unexpected service error occurred
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /refresh:
+    post:
+      operationId: RefreshPair
+      description: Refresh pair of tokens using refresh token
+      tags:
+        - auth
+      responses:
+        "200":
+          description: Successfully refreshed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TokenPair"
+        "400":
+          description: Token probably is invalid
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Unexpected service error occurred
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+
+components:
+  securitySchemes:
+    refreshAuth:
+      type: apiKey
+      in: cookie
+      name: refresh_token
+  schemas:
+    TokenPair:
+      type: object
+      properties:
+        accessToken:
+          type: string
+        refreshToken:
+          type: string
+      required:
+        - accessToken
+        - refreshToken
+    Credentials:
+      type: object
+      properties:
+        phone:
+          type: string
+        password:
+          type: string
+      required:
+        - phone
+        - password
+    Error:
+        type: object
+        properties:
+          code:
+            type: integer
+          message:
+            type: string
+    AccessToken:
+      type: object
+      properties:
+        accessToken:
+          type: string
+      required:
+        - accessToken
