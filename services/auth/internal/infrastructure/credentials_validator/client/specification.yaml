@@ -1,0 +1,67 @@
+openapi: 3.0.0
+
+info:
+  title: FoodOut's Account Service API
+  description: Account management API for FoodOut system
+  version: 1.0.0
+  contact:
+    name: Max Kamerov
+    email: indigowar.github@gmail.com
+
+
+paths:
+  /account/credentials:
+    get:
+      operationId: ValidateCredentials
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AccountCredentials'
+      responses:
+        '200':
+          description: Valid user id of this credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountId'
+        '400':
+          description: Credentials are invalid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+components:
+  schemas:
+    Error:
+      type: object
+      properties:
+        code:
+          type: integer
+        message:
+          type: string
+    AccountId:
+      type: object
+      properties:
+        id:
+          type: string
+      required:
+        - id
+    AccountCredentials:
+      type: object
+      properties:
+        phone:
+          type: string
+        password:
+          type: string
+      required:
+        - phone
+        - password
+
+
