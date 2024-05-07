@@ -1,6 +1,8 @@
 package service
 
-import "log/slog"
+import (
+	"log/slog"
+)
 
 type Service struct {
 	logger               *slog.Logger
