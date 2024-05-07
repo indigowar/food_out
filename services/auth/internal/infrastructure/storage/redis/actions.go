@@ -12,18 +12,20 @@ import (
 
 // todo: add proper error management
 
+// Those constants are the keys for fields of Session struct in Redis.
 const (
 	fieldID         = "ID"
 	fieldToken      = "Token"
 	fieldExpiration = "Expiration"
 )
 
+// This time format is used to store a timestamp as a string in Redis
 const timeFormat = time.RFC3339
 
 func addSessionData(session domain.Session) txAction {
 	return func(ctx context.Context, p redis.Pipeliner) error {
 		err := p.HSet(
-			ctx, makeSessionKey(session),
+			ctx, makeIDKey(session.ID()),
 			fieldID, session.ID().String(),
 			fieldToken, session.Token(),
 			fieldExpiration, session.Expiration().Format(timeFormat),
@@ -32,7 +34,7 @@ func addSessionData(session domain.Session) txAction {
 			return err
 		}
 
-		if err := p.ExpireAt(ctx, makeSessionKey(session), session.Expiration()).Err(); err != nil {
+		if err := p.ExpireAt(ctx, makeIDKey(session.ID()), session.Expiration()).Err(); err != nil {
 			return err
 		}
 
@@ -43,7 +45,7 @@ func addSessionData(session domain.Session) txAction {
 func addTokenIndex(session domain.Session) txAction {
 	return func(ctx context.Context, p redis.Pipeliner) error {
 		duration := time.Until(session.Expiration())
-		if err := p.Set(ctx, makeTokenKey(session.Token()), makeSessionKey(session), duration).Err(); err != nil {
+		if err := p.Set(ctx, makeTokenKey(session.Token()), makeIDKey(session.ID()), duration).Err(); err != nil {
 			return err
 		}
 

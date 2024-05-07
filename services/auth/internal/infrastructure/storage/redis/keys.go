@@ -8,10 +8,6 @@ import (
 	"github.com/indigowar/food_out/services/auth/internal/domain"
 )
 
-func makeSessionKey(s domain.Session) string {
-	return makeIDKey(s.ID())
-}
-
 func makeIDKey(id uuid.UUID) string {
 	return fmt.Sprintf("sessions:%s", id.String())
 }
