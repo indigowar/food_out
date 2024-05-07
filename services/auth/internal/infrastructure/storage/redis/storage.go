@@ -2,6 +2,8 @@ package redis
 
 import (
 	"context"
+	"errors"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/redis/go-redis/v9"
@@ -38,7 +40,7 @@ func (s *Storage) GetByID(ctx context.Context, id uuid.UUID) (domain.Session, er
 		return domain.Session{}, err
 	}
 
-	return sessionFromData(data), nil
+	return sessionFromData(data)
 }
 
 // GetByToken implements service.Storage.
@@ -53,7 +55,7 @@ func (s *Storage) GetByToken(ctx context.Context, token domain.SessionToken) (do
 		return domain.Session{}, err
 	}
 
-	return sessionFromData(data), nil
+	return sessionFromData(data)
 }
 
 // RemoveByID implements service.Storage.
@@ -84,6 +86,30 @@ func (s *Storage) RemoveByToken(ctx context.Context, token domain.SessionToken) 
 	)(ctx)
 }
 
-func sessionFromData(data map[string]string) domain.Session {
-	panic("unimplemented")
+func sessionFromData(data map[string]string) (domain.Session, error) {
+	var id uuid.UUID
+	var token domain.SessionToken
+	var expDate time.Time
+
+	var err error
+	for key, value := range data {
+		switch key {
+		case fieldID:
+			id, err = uuid.Parse(value)
+			if err != nil {
+				return domain.Session{}, err
+			}
+		case fieldToken:
+			token = domain.SessionToken(value)
+		case fieldExpiration:
+			expDate, err = time.Parse(timeFormat, value)
+			if err != nil {
+				return domain.Session{}, err
+			}
+		default:
+			return domain.Session{}, errors.New("invalid key")
+		}
+	}
+
+	return domain.NewSession(id, token, expDate), nil
 }

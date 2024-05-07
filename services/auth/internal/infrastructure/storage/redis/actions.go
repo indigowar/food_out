@@ -12,13 +12,21 @@ import (
 
 // todo: add proper error management
 
+const (
+	fieldID         = "ID"
+	fieldToken      = "Token"
+	fieldExpiration = "Expiration"
+)
+
+const timeFormat = time.RFC3339
+
 func addSessionData(session domain.Session) txAction {
 	return func(ctx context.Context, p redis.Pipeliner) error {
 		err := p.HSet(
 			ctx, makeSessionKey(session),
-			"ID", session.ID().String(),
-			"Token", session.Token(),
-			"Expiration", session.Expiration().String(),
+			fieldID, session.ID().String(),
+			fieldToken, session.Token(),
+			fieldExpiration, session.Expiration().Format(timeFormat),
 		).Err()
 		if err != nil {
 			return err
