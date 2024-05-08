@@ -301,39 +301,6 @@ func (s *Error) UnmarshalJSON(data []byte) error {
 	return s.Decode(d)
 }
 
-// Encode encodes AccountCredentials as json.
-func (o OptAccountCredentials) Encode(e *jx.Encoder) {
-	if !o.Set {
-		return
-	}
-	o.Value.Encode(e)
-}
-
-// Decode decodes AccountCredentials from json.
-func (o *OptAccountCredentials) Decode(d *jx.Decoder) error {
-	if o == nil {
-		return errors.New("invalid: unable to decode OptAccountCredentials to nil")
-	}
-	o.Set = true
-	if err := o.Value.Decode(d); err != nil {
-		return err
-	}
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s OptAccountCredentials) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *OptAccountCredentials) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
 // Encode encodes int as json.
 func (o OptInt) Encode(e *jx.Encoder) {
 	if !o.Set {

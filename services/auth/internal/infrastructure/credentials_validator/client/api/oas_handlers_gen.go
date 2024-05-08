@@ -89,7 +89,7 @@ func (s *Server) handleValidateCredentialsRequest(args [0]string, argsEscaped bo
 		}
 
 		type (
-			Request  = OptAccountCredentials
+			Request  = *AccountCredentials
 			Params   = struct{}
 			Response = ValidateCredentialsRes
 		)

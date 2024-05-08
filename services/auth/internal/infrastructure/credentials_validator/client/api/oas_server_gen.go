@@ -11,7 +11,7 @@ type Handler interface {
 	// ValidateCredentials implements ValidateCredentials operation.
 	//
 	// GET /account/credentials
-	ValidateCredentials(ctx context.Context, req OptAccountCredentials) (ValidateCredentialsRes, error)
+	ValidateCredentials(ctx context.Context, req *AccountCredentials) (ValidateCredentialsRes, error)
 }
 
 // Server implements http server based on OpenAPI v3 specification and

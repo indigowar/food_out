@@ -25,7 +25,7 @@ type Invoker interface {
 	// ValidateCredentials invokes ValidateCredentials operation.
 	//
 	// GET /account/credentials
-	ValidateCredentials(ctx context.Context, request OptAccountCredentials) (ValidateCredentialsRes, error)
+	ValidateCredentials(ctx context.Context, request *AccountCredentials) (ValidateCredentialsRes, error)
 }
 
 // Client implements OAS client.
@@ -79,12 +79,12 @@ func (c *Client) requestURL(ctx context.Context) *url.URL {
 // ValidateCredentials invokes ValidateCredentials operation.
 //
 // GET /account/credentials
-func (c *Client) ValidateCredentials(ctx context.Context, request OptAccountCredentials) (ValidateCredentialsRes, error) {
+func (c *Client) ValidateCredentials(ctx context.Context, request *AccountCredentials) (ValidateCredentialsRes, error) {
 	res, err := c.sendValidateCredentials(ctx, request)
 	return res, err
 }
 
-func (c *Client) sendValidateCredentials(ctx context.Context, request OptAccountCredentials) (res ValidateCredentialsRes, err error) {
+func (c *Client) sendValidateCredentials(ctx context.Context, request *AccountCredentials) (res ValidateCredentialsRes, err error) {
 	otelAttrs := []attribute.KeyValue{
 		otelogen.OperationID("ValidateCredentials"),
 		semconv.HTTPMethodKey.String("GET"),

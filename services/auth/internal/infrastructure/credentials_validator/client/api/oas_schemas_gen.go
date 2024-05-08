@@ -71,52 +71,6 @@ func (s *Error) SetMessage(val OptString) {
 	s.Message = val
 }
 
-// NewOptAccountCredentials returns new OptAccountCredentials with value set to v.
-func NewOptAccountCredentials(v AccountCredentials) OptAccountCredentials {
-	return OptAccountCredentials{
-		Value: v,
-		Set:   true,
-	}
-}
-
-// OptAccountCredentials is optional AccountCredentials.
-type OptAccountCredentials struct {
-	Value AccountCredentials
-	Set   bool
-}
-
-// IsSet returns true if OptAccountCredentials was set.
-func (o OptAccountCredentials) IsSet() bool { return o.Set }
-
-// Reset unsets value.
-func (o *OptAccountCredentials) Reset() {
-	var v AccountCredentials
-	o.Value = v
-	o.Set = false
-}
-
-// SetTo sets value to v.
-func (o *OptAccountCredentials) SetTo(v AccountCredentials) {
-	o.Set = true
-	o.Value = v
-}
-
-// Get returns value and boolean that denotes whether value was set.
-func (o OptAccountCredentials) Get() (v AccountCredentials, ok bool) {
-	if !o.Set {
-		return v, false
-	}
-	return o.Value, true
-}
-
-// Or returns value if set, or given parameter if does not.
-func (o OptAccountCredentials) Or(d AccountCredentials) AccountCredentials {
-	if v, ok := o.Get(); ok {
-		return v
-	}
-	return d
-}
-
 // NewOptInt returns new OptInt with value set to v.
 func NewOptInt(v int) OptInt {
 	return OptInt{

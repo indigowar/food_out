@@ -16,6 +16,6 @@ var _ Handler = UnimplementedHandler{}
 // ValidateCredentials implements ValidateCredentials operation.
 //
 // GET /account/credentials
-func (UnimplementedHandler) ValidateCredentials(ctx context.Context, req OptAccountCredentials) (r ValidateCredentialsRes, _ error) {
+func (UnimplementedHandler) ValidateCredentials(ctx context.Context, req *AccountCredentials) (r ValidateCredentialsRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
