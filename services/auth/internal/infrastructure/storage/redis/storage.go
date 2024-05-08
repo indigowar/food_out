@@ -59,31 +59,43 @@ func (s *Storage) GetByToken(ctx context.Context, token domain.SessionToken) (do
 }
 
 // RemoveByID implements service.Storage.
-func (s *Storage) RemoveByID(ctx context.Context, id uuid.UUID) error {
+func (s *Storage) RemoveByID(ctx context.Context, id uuid.UUID) (domain.Session, error) {
 	session, err := s.GetByID(ctx, id)
 	if err != nil {
-		return err
+		return domain.Session{}, err
 	}
 
-	return makeTx(
+	err = makeTx(
 		s.client,
 		removeSession(session.ID()),
 		removeTokenIndex(session.Token()),
 	)(ctx)
+
+	if err != nil {
+		return domain.Session{}, err
+	}
+
+	return session, nil
 }
 
 // RemoveByToken implements service.Storage.
-func (s *Storage) RemoveByToken(ctx context.Context, token domain.SessionToken) error {
+func (s *Storage) RemoveByToken(ctx context.Context, token domain.SessionToken) (domain.Session, error) {
 	session, err := s.GetByToken(ctx, token)
 	if err != nil {
-		return err
+		return domain.Session{}, err
 	}
 
-	return makeTx(
+	err = makeTx(
 		s.client,
 		removeSession(session.ID()),
 		removeTokenIndex(session.Token()),
 	)(ctx)
+
+	if err != nil {
+		return domain.Session{}, err
+	}
+
+	return session, nil
 }
 
 func sessionFromData(data map[string]string) (domain.Session, error) {
