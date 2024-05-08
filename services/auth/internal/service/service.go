@@ -90,10 +90,16 @@ func (s *Service) handleInternalError(action string, reason string, subAction st
 	return ErrInternal
 }
 
-func NewService(logger *slog.Logger, storage Storage, credentialsValidator CredentialsValidator) *Service {
+func NewService(
+	logger *slog.Logger,
+	storage Storage,
+	credentialsValidator CredentialsValidator,
+	sessionDuration time.Duration,
+) *Service {
 	return &Service{
 		logger:               logger,
 		storage:              storage,
 		credentialsValidator: credentialsValidator,
+		sessionDuration:      sessionDuration,
 	}
 }
