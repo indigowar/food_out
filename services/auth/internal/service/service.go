@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"errors"
+	"fmt"
 	"log/slog"
 	"time"
 
@@ -46,29 +47,35 @@ func (s *Service) Login(ctx context.Context, phone string, password string) (dom
 }
 
 func (s *Service) Logout(ctx context.Context, token domain.SessionToken) error {
-	panic("not implemented")
-	// if err := s.storage.RemoveByToken(ctx, token); err != nil {
-	// 	if errors.Is(err, ErrStorageNotFound) {
-	// 		return ErrSessionDoesNotExist
-	// 	}
-	// 	return s.handleInternalError("Logout", "Storage", "RemoveByToken", err)
-	// }
-	//
-	// return nil
+	if _, err := s.storage.RemoveByToken(ctx, token); err != nil {
+		if errors.Is(err, ErrStorageNotFound) {
+			return ErrSessionDoesNotExist
+		}
+		return s.handleInternalError("Logout", "Storage", "RemoveByToken", err)
+	}
+
+	return nil
 }
 
 func (s *Service) RenewSession(ctx context.Context, token domain.SessionToken) (domain.Session, error) {
-	panic("not implemented")
-	// session, err := s.storage.GetByToken(ctx, token)
-	// if err != nil {
-	// 	if errors.Is(err, ErrStorageNotFound) {
-	// 		return domain.Session{}, ErrSessionDoesNotExist
-	// 	}
-	//
-	// 	return domain.Session{}, s.handleInternalError("RenewSession", "Storage", "GetByToken", err)
-	// }
-	//
-	// newSession := domain.NewSession(session.ID(), token, time.Now().Add(s.sessionDuration))
+	session, err := s.storage.RemoveByToken(ctx, token)
+	if err != nil {
+		if errors.Is(err, ErrStorageNotFound) {
+			return domain.Session{}, ErrSessionDoesNotExist
+		}
+		return domain.Session{}, s.handleInternalError("RenewSession", "Storage", "RemoveByToken", err)
+	}
+
+	newSession := domain.NewSession(session.ID(), token, time.Now().Add(s.sessionDuration))
+
+	if err := s.storage.Add(ctx, newSession); err != nil {
+		if errors.Is(err, ErrStorageAlreadyExists) {
+			return domain.Session{}, s.handleInternalError("RenewSession", "Storage", "Add", fmt.Errorf("%w: after removal", err))
+		}
+		return domain.Session{}, s.handleInternalError("RenewSession", "Storage", "Add", err)
+	}
+
+	return newSession, nil
 }
 
 func (s *Service) handleInternalError(action string, reason string, subAction string, err error) error {

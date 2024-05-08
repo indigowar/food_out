@@ -29,10 +29,10 @@ var _ Storage = &StorageMock{}
 //			GetByTokenFunc: func(ctx context.Context, token domain.SessionToken) (domain.Session, error) {
 //				panic("mock out the GetByToken method")
 //			},
-//			RemoveByIDFunc: func(ctx context.Context, id uuid.UUID) error {
+//			RemoveByIDFunc: func(ctx context.Context, id uuid.UUID) (domain.Session, error) {
 //				panic("mock out the RemoveByID method")
 //			},
-//			RemoveByTokenFunc: func(ctx context.Context, token domain.SessionToken) error {
+//			RemoveByTokenFunc: func(ctx context.Context, token domain.SessionToken) (domain.Session, error) {
 //				panic("mock out the RemoveByToken method")
 //			},
 //		}
@@ -52,10 +52,10 @@ type StorageMock struct {
 	GetByTokenFunc func(ctx context.Context, token domain.SessionToken) (domain.Session, error)
 
 	// RemoveByIDFunc mocks the RemoveByID method.
-	RemoveByIDFunc func(ctx context.Context, id uuid.UUID) error
+	RemoveByIDFunc func(ctx context.Context, id uuid.UUID) (domain.Session, error)
 
 	// RemoveByTokenFunc mocks the RemoveByToken method.
-	RemoveByTokenFunc func(ctx context.Context, token domain.SessionToken) error
+	RemoveByTokenFunc func(ctx context.Context, token domain.SessionToken) (domain.Session, error)
 
 	// calls tracks calls to the methods.
 	calls struct {
@@ -211,7 +211,7 @@ func (mock *StorageMock) GetByTokenCalls() []struct {
 }
 
 // RemoveByID calls RemoveByIDFunc.
-func (mock *StorageMock) RemoveByID(ctx context.Context, id uuid.UUID) error {
+func (mock *StorageMock) RemoveByID(ctx context.Context, id uuid.UUID) (domain.Session, error) {
 	if mock.RemoveByIDFunc == nil {
 		panic("StorageMock.RemoveByIDFunc: method is nil but Storage.RemoveByID was just called")
 	}
@@ -247,7 +247,7 @@ func (mock *StorageMock) RemoveByIDCalls() []struct {
 }
 
 // RemoveByToken calls RemoveByTokenFunc.
-func (mock *StorageMock) RemoveByToken(ctx context.Context, token domain.SessionToken) error {
+func (mock *StorageMock) RemoveByToken(ctx context.Context, token domain.SessionToken) (domain.Session, error) {
 	if mock.RemoveByTokenFunc == nil {
 		panic("StorageMock.RemoveByTokenFunc: method is nil but Storage.RemoveByToken was just called")
 	}

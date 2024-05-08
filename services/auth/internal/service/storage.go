@@ -19,6 +19,6 @@ type Storage interface {
 	GetByID(ctx context.Context, id uuid.UUID) (domain.Session, error)
 	GetByToken(ctx context.Context, token domain.SessionToken) (domain.Session, error)
 	Add(ctx context.Context, session domain.Session) error
-	RemoveByID(ctx context.Context, id uuid.UUID) error
-	RemoveByToken(ctx context.Context, token domain.SessionToken) error
+	RemoveByID(ctx context.Context, id uuid.UUID) (domain.Session, error)
+	RemoveByToken(ctx context.Context, token domain.SessionToken) (domain.Session, error)
 }
