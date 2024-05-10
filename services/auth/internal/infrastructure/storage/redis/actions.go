@@ -2,12 +2,14 @@ package redis
 
 import (
 	"context"
+	"errors"
 	"time"
 
 	"github.com/google/uuid"
 	"github.com/redis/go-redis/v9"
 
 	"github.com/indigowar/food_out/services/auth/internal/domain"
+	"github.com/indigowar/food_out/services/auth/internal/service"
 )
 
 // todo: add proper error management
@@ -55,12 +57,20 @@ func addTokenIndex(session domain.Session) txAction {
 
 func removeSession(id uuid.UUID) txAction {
 	return func(ctx context.Context, p redis.Pipeliner) error {
-		return p.Del(ctx, makeIDKey(id)).Err()
+		err := p.Del(ctx, makeIDKey(id)).Err()
+		if errors.Is(err, redis.Nil) {
+			return service.ErrStorageNotFound
+		}
+		return err
 	}
 }
 
 func removeTokenIndex(token domain.SessionToken) txAction {
 	return func(ctx context.Context, p redis.Pipeliner) error {
-		return p.Del(ctx, makeTokenKey(token)).Err()
+		err := p.Del(ctx, makeTokenKey(token)).Err()
+		if errors.Is(err, redis.Nil) {
+			return service.ErrStorageNotFound
+		}
+		return err
 	}
 }

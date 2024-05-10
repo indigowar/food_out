@@ -37,6 +37,10 @@ func (s *Storage) Add(ctx context.Context, session domain.Session) error {
 func (s *Storage) GetByID(ctx context.Context, id uuid.UUID) (domain.Session, error) {
 	data, err := s.client.HGetAll(ctx, makeIDKey(id)).Result()
 	if err != nil {
+		if errors.Is(err, redis.Nil) {
+			return domain.Session{}, service.ErrStorageNotFound
+		}
+
 		return domain.Session{}, err
 	}
 
@@ -47,11 +51,17 @@ func (s *Storage) GetByID(ctx context.Context, id uuid.UUID) (domain.Session, er
 func (s *Storage) GetByToken(ctx context.Context, token domain.SessionToken) (domain.Session, error) {
 	sessionKey, err := s.client.Get(ctx, makeTokenKey(token)).Result()
 	if err != nil {
+		if errors.Is(err, redis.Nil) {
+			return domain.Session{}, service.ErrStorageNotFound
+		}
 		return domain.Session{}, err
 	}
 
 	data, err := s.client.HGetAll(ctx, sessionKey).Result()
 	if err != nil {
+		if errors.Is(err, redis.Nil) {
+			return domain.Session{}, service.ErrStorageNotFound
+		}
 		return domain.Session{}, err
 	}
 
