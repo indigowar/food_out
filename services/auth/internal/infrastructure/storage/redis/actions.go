@@ -12,8 +12,6 @@ import (
 	"github.com/indigowar/food_out/services/auth/internal/service"
 )
 
-// todo: add proper error management
-
 // Those constants are the keys for fields of Session struct in Redis.
 const (
 	fieldID         = "ID"
