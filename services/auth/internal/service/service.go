@@ -78,6 +78,18 @@ func (s *Service) RenewSession(ctx context.Context, token domain.SessionToken) (
 	return newSession, nil
 }
 
+func (s *Service) GetExistingSession(ctx context.Context, token domain.SessionToken) (domain.Session, error) {
+	session, err := s.storage.GetByToken(ctx, token)
+	if err != nil {
+		if errors.Is(err, ErrStorageNotFound) {
+			return domain.Session{}, ErrSessionDoesNotExist
+		}
+
+		return domain.Session{}, s.handleInternalError("GetExistingSession", "Storage", "GetByToken", err)
+	}
+	return session, nil
+}
+
 func (s *Service) handleInternalError(action string, reason string, subAction string, err error) error {
 	s.logger.Warn(
 		"Service Operation FAILED",
