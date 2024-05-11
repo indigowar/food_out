@@ -66,8 +66,8 @@ services:
       context: ../services/auth
       dockerfile: ./build/Dockerfile
     restart: unless-stopped
-    # depends_on:
-    #   - auth_storage
+    depends_on:
+      - auth_storage
     networks:
       - traefik-proxy-network
       - auth-network
@@ -75,15 +75,28 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.auth.rule=Host(`auth.localhost`)"
       - "traefik.http.services.auth.loadbalancer.server.port=80"
+    environment:
+      REDIS_HOST: auth_storage
+      REDIS_PORT: 6379
+      REDIS_PASSWORD: strong_and_complicated_password
+      REDIS_DB: 0
 
-  # auth_storage:
-  #   container_name: auth_storage
-  #   image: valkey:7.2-alpine
-  #   restart: unless-stopped
-  #   networks:
-  #     - auth-network
-  #   volumes:
-  #     - ../.volumes/auth_storage:
+      AUTH_SESSION_DURATION: 24h
+      AUTH_ACCESS_TOKEN_DURATION: 15m
+      ACCOUNTS_URL: accounts.localhost
+
+  auth_storage:
+    container_name: auth_storage
+    image: redis:7.2-alpine
+    restart: unless-stopped
+    networks:
+      - auth-network
+    volumes:
+      - ../.volumes/auth_storage:/data
+    environment:
+      REDIS_PORT: 6379
+      REDIS_DB: 0
+      REDIS_PASSWORD: strong_and_complicated_password
 
 networks:
   traefik-proxy-network:

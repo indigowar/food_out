@@ -10,14 +10,12 @@ import (
 func Connect(
 	host string,
 	port int,
-	user string,
 	password string,
 	DB int,
 ) (*redis.Client, error) {
 	client := redis.NewClient(&redis.Options{
 		Addr:     fmt.Sprintf("%s:%d", host, port),
 		Protocol: 0,
-		Username: user,
 		Password: password,
 		DB:       DB,
 	})

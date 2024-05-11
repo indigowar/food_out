@@ -27,7 +27,6 @@ func main() {
 	redisClient, err := redis.Connect(
 		cfg.Redis.Host,
 		cfg.Redis.Port,
-		cfg.Redis.Username,
 		cfg.Redis.Password,
 		cfg.Redis.DB,
 	)
