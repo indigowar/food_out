@@ -11,14 +11,14 @@ import (
 	"github.com/indigowar/food_out/services/auth/internal/service"
 )
 
-type ClientValidator struct {
+type CredentialsValidator struct {
 	api *api.Client
 }
 
-var _ service.CredentialsValidator = &ClientValidator{}
+var _ service.CredentialsValidator = &CredentialsValidator{}
 
 // Validate implements service.CredentialsValidator.
-func (c *ClientValidator) Validate(ctx context.Context, phone string, password string) (uuid.UUID, error) {
+func (c *CredentialsValidator) Validate(ctx context.Context, phone string, password string) (uuid.UUID, error) {
 	res, err := c.makeRequest(ctx, phone, password)
 	if err != nil {
 		return uuid.UUID{}, err
@@ -37,7 +37,7 @@ func (c *ClientValidator) Validate(ctx context.Context, phone string, password s
 	return id, nil
 }
 
-func (c *ClientValidator) makeRequest(ctx context.Context, phone string, password string) (api.ValidateCredentialsRes, error) {
+func (c *CredentialsValidator) makeRequest(ctx context.Context, phone string, password string) (api.ValidateCredentialsRes, error) {
 	res, err := c.api.ValidateCredentials(ctx, &api.AccountCredentials{
 		Phone:    phone,
 		Password: password,
@@ -50,7 +50,7 @@ func (c *ClientValidator) makeRequest(ctx context.Context, phone string, passwor
 	return res, nil
 }
 
-func (c *ClientValidator) handleErrorResponse(res api.ValidateCredentialsRes) error {
+func (c *CredentialsValidator) handleErrorResponse(res api.ValidateCredentialsRes) error {
 	if _, ok := res.(*api.ValidateCredentialsBadRequest); ok {
 		return service.ErrCredentialsValidatorInvalid
 	}
@@ -62,10 +62,10 @@ func (c *ClientValidator) handleErrorResponse(res api.ValidateCredentialsRes) er
 	return errors.New("unexpected response received")
 }
 
-func NewClient(accountUrl string) (*ClientValidator, error) {
+func NewCredentialsValidator(accountUrl string) (*CredentialsValidator, error) {
 	api, err := api.NewClient(accountUrl)
 	if err != nil {
 		return nil, err
 	}
-	return &ClientValidator{api: api}, nil
+	return &CredentialsValidator{api: api}, nil
 }

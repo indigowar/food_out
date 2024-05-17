@@ -35,7 +35,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	credentialsValidator, err := client.NewClient(cfg.Accounts.Url)
+	credentialsValidator, err := client.NewCredentialsValidator(cfg.Accounts.Url)
 	if err != nil {
 		log.Fatal(err)
 	}
