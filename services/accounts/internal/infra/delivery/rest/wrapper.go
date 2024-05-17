@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"log/slog"
-	"net/http"
 
 	"github.com/google/uuid"
 
@@ -26,12 +25,12 @@ func (w *Wrapper) CreateAccount(ctx context.Context, req *api.AccountCreationInf
 	if err != nil {
 		if errors.Is(err, service.ErrInvalidCredentials) || errors.Is(err, service.ErrPhoneNumberAlreadyInUse) {
 			return &api.CreateAccountBadRequest{
-				Message: api.NewOptString(err.Error()),
+				Message: err.Error(),
 			}, nil
 		}
 
 		return &api.CreateAccountInternalServerError{
-			Message: api.NewOptString(err.Error()),
+			Message: err.Error(),
 		}, nil
 	}
 	return &api.AccountId{ID: account.ID().String()}, nil
@@ -42,21 +41,20 @@ func (w *Wrapper) DeleteAccount(ctx context.Context, params api.DeleteAccountPar
 	id, err := uuid.Parse(params.ID)
 	if err != nil {
 		return &api.DeleteAccountBadRequest{
-			Code:    api.NewOptInt(http.StatusBadRequest),
-			Message: api.NewOptString("invalid ID value"),
+			Message: "invalid account ID is provided",
 		}, nil
 	}
 
 	if err := w.svc.DeleteAccount(ctx, id); err != nil {
 		if errors.Is(err, service.ErrNotFound) {
 			return &api.DeleteAccountNotFound{
-				Message: api.NewOptString(err.Error()),
-			}, err
+				Message: err.Error(),
+			}, nil
 		}
 
 		return &api.DeleteAccountInternalServerError{
-			Message: api.NewOptString(err.Error()),
-		}, err
+			Message: err.Error(),
+		}, nil
 	}
 
 	return &api.DeleteAccountAccepted{}, err
@@ -67,8 +65,7 @@ func (w *Wrapper) GetAccountInfo(ctx context.Context, params api.GetAccountInfoP
 	id, err := uuid.Parse(params.ID)
 	if err != nil {
 		return &api.GetAccountInfoNotFound{
-			Code:    api.NewOptInt(http.StatusBadRequest),
-			Message: api.NewOptString("invalid id"),
+			Message: "invalid account ID is provided",
 		}, nil
 	}
 
@@ -76,14 +73,12 @@ func (w *Wrapper) GetAccountInfo(ctx context.Context, params api.GetAccountInfoP
 	if err != nil {
 		if errors.Is(err, service.ErrNotFound) {
 			return &api.GetAccountInfoNotFound{
-				Code:    api.NewOptInt(http.StatusNotFound),
-				Message: api.NewOptString("account not found"),
+				Message: err.Error(),
 			}, nil
 		}
 
 		return &api.GetAccountInfoInternalServerError{
-			Code:    api.NewOptInt(http.StatusInternalServerError),
-			Message: api.NewOptString(err.Error()),
+			Message: err.Error(),
 		}, nil
 	}
 
@@ -95,8 +90,7 @@ func (w *Wrapper) GetOwnInfo(ctx context.Context) (api.GetOwnInfoRes, error) {
 	id, err := w.getId(ctx)
 	if err != nil {
 		return &api.GetOwnInfoForbidden{
-			Code:    api.NewOptInt(http.StatusForbidden),
-			Message: api.NewOptString("user is not authenticated"),
+			Message: "account id is not provided",
 		}, nil
 	}
 
@@ -104,14 +98,12 @@ func (w *Wrapper) GetOwnInfo(ctx context.Context) (api.GetOwnInfoRes, error) {
 	if err != nil {
 		if errors.Is(err, service.ErrNotFound) {
 			return &api.GetOwnInfoNotFound{
-				Code:    api.NewOptInt(http.StatusNotFound),
-				Message: api.NewOptString("account not found"),
+				Message: err.Error(),
 			}, nil
 		}
 
 		return &api.GetOwnInfoInternalServerError{
-			Code:    api.NewOptInt(http.StatusInternalServerError),
-			Message: api.NewOptString(err.Error()),
+			Message: err.Error(),
 		}, nil
 	}
 
@@ -123,36 +115,31 @@ func (w *Wrapper) UpdatePassword(ctx context.Context, req *api.PasswordUpdateInf
 	id, err := uuid.Parse(req.ID)
 	if err != nil {
 		return &api.UpdatePasswordBadRequest{
-			Code:    api.NewOptInt(http.StatusBadRequest),
-			Message: api.NewOptString("invalid id"),
+			Message: "account id is not provided",
 		}, nil
 	}
 
 	if err := w.svc.UpdatePassword(ctx, id, req.OldPassword, req.NewPassword); err != nil {
 		if errors.Is(err, service.ErrNotFound) {
 			return &api.UpdatePasswordNotFound{
-				Code:    api.NewOptInt(http.StatusNotFound),
-				Message: api.NewOptString(err.Error()),
+				Message: err.Error(),
 			}, err
 		}
 
 		if errors.Is(err, service.ErrInvalidOldPassword) {
 			return &api.UpdatePasswordForbidden{
-				Code:    api.NewOptInt(http.StatusForbidden),
-				Message: api.NewOptString(err.Error()),
+				Message: err.Error(),
 			}, nil
 		}
 
 		if errors.Is(err, service.ErrInvalidValue) {
 			return &api.UpdatePasswordBadRequest{
-				Code:    api.NewOptInt(http.StatusBadRequest),
-				Message: api.NewOptString(err.Error()),
+				Message: err.Error(),
 			}, err
 		}
 
 		return &api.UpdatePasswordInternalServerError{
-			Code:    api.NewOptInt(http.StatusInternalServerError),
-			Message: api.NewOptString(err.Error()),
+			Message: err.Error(),
 		}, err
 	}
 
@@ -165,13 +152,12 @@ func (w *Wrapper) ValidateCredentials(ctx context.Context, req api.OptAccountCre
 	if err != nil {
 		if errors.Is(err, service.ErrInvalidCredentials) {
 			return &api.ValidateCredentialsBadRequest{
-				Message: api.NewOptString(err.Error()),
+				Message: err.Error(),
 			}, nil
 		}
 
 		return &api.ValidateCredentialsInternalServerError{
-			Code:    api.OptInt{},
-			Message: api.NewOptString(err.Error()),
+			Message: err.Error(),
 		}, nil
 	}
 
