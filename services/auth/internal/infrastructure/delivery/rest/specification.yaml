@@ -165,10 +165,10 @@ components:
     Error:
         type: object
         properties:
-          code:
-            type: integer
           message:
             type: string
+        required:
+          - message
     AccessToken:
       type: object
       properties:

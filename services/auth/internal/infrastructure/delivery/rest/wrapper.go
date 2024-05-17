@@ -24,21 +24,18 @@ func (w *Wrapper) LogIn(ctx context.Context, req *api.Credentials) (api.LogInRes
 	if err != nil {
 		if errors.Is(err, service.ErrCredentialsAreInvalid) {
 			return &api.LogInBadRequest{
-				Code:    api.NewOptInt(http.StatusBadRequest),
-				Message: api.NewOptString(err.Error()),
+				Message: err.Error(),
 			}, nil
 		}
 
 		if errors.Is(err, service.ErrSessionAlreadyExists) {
 			return &api.LogInBadRequest{
-				Code:    api.NewOptInt(http.StatusBadRequest),
-				Message: api.NewOptString(err.Error()),
+				Message: err.Error(),
 			}, nil
 		}
 
 		return &api.LogInInternalServerError{
-			Code:    api.NewOptInt(http.StatusInternalServerError),
-			Message: api.NewOptString(err.Error()),
+			Message: err.Error(),
 		}, nil
 	}
 
@@ -55,14 +52,12 @@ func (w *Wrapper) LogoutFromSession(ctx context.Context) (api.LogoutFromSessionR
 	if err := w.sv.Logout(ctx, token); err != nil {
 		if errors.Is(err, service.ErrSessionDoesNotExist) {
 			return &api.LogoutFromSessionBadRequest{
-				Code:    api.NewOptInt(http.StatusNotFound),
-				Message: api.NewOptString(err.Error()),
+				Message: err.Error(),
 			}, nil
 		}
 
 		return &api.LogoutFromSessionInternalServerError{
-			Code:    api.NewOptInt(http.StatusInternalServerError),
-			Message: api.NewOptString(err.Error()),
+			Message: err.Error(),
 		}, nil
 	}
 
@@ -77,14 +72,12 @@ func (w *Wrapper) RefreshAccessToken(ctx context.Context) (api.RefreshAccessToke
 	if err != nil {
 		if errors.Is(err, service.ErrSessionDoesNotExist) {
 			return &api.RefreshAccessTokenBadRequest{
-				Code:    api.NewOptInt(http.StatusBadRequest),
-				Message: api.NewOptString(err.Error()),
+				Message: err.Error(),
 			}, nil
 		}
 
 		return &api.RefreshAccessTokenInternalServerError{
-			Code:    api.NewOptInt(http.StatusInternalServerError),
-			Message: api.NewOptString(err.Error()),
+			Message: err.Error(),
 		}, nil
 	}
 
@@ -101,13 +94,11 @@ func (w *Wrapper) RefreshPair(ctx context.Context) (api.RefreshPairRes, error) {
 	if err != nil {
 		if errors.Is(err, service.ErrSessionDoesNotExist) {
 			return &api.RefreshPairBadRequest{
-				Code:    api.NewOptInt(http.StatusNotFound),
-				Message: api.NewOptString(err.Error()),
+				Message: err.Error(),
 			}, nil
 		}
 		return &api.RefreshPairInternalServerError{
-			Code:    api.NewOptInt(http.StatusInternalServerError),
-			Message: api.NewOptString(err.Error()),
+			Message: err.Error(),
 		}, nil
 	}
 
