@@ -8,6 +8,7 @@ import (
 	"unicode"
 
 	"github.com/google/uuid"
+	"golang.org/x/crypto/bcrypt"
 )
 
 func ValidatePhoneNumber(value string) error {
@@ -138,8 +139,19 @@ func (a *Account) SetPassword(newPassword string) error {
 	if err := ValidatePassword(newPassword); err != nil {
 		return err
 	}
-	a.password = newPassword
+	hash, err := bcrypt.GenerateFromPassword([]byte(newPassword), bcrypt.MinCost)
+	if err != nil {
+		return err
+	}
+	a.password = string(hash)
 	return nil
+}
+
+func (a *Account) IsPasswordEqual(pwd string) bool {
+	if err := bcrypt.CompareHashAndPassword([]byte(a.password), []byte(pwd)); err != nil {
+		return false
+	}
+	return true
 }
 
 func (a *Account) Name() string {

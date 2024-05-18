@@ -129,7 +129,7 @@ func (svc *Service) UpdatePassword(ctx context.Context, id uuid.UUID, oldPasswor
 		return err
 	}
 
-	if account.Password() != oldPassword {
+	if !account.IsPasswordEqual(oldPassword) {
 		return ErrInvalidOldPassword
 	}
 
@@ -199,7 +199,7 @@ func (svc *Service) GetUserIDByCredentials(ctx context.Context, phone string, pa
 		return uuid.UUID{}, ErrInternal
 	}
 
-	if account.Password() != password {
+	if !account.IsPasswordEqual(password) {
 		return uuid.UUID{}, ErrInvalidCredentials
 	}
 
