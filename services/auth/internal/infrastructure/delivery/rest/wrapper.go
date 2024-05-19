@@ -3,7 +3,6 @@ package rest
 import (
 	"context"
 	"errors"
-	"net/http"
 
 	"github.com/indigowar/food_out/services/auth/internal/domain"
 	"github.com/indigowar/food_out/services/auth/internal/infrastructure/delivery/rest/api"
