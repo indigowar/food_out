@@ -1,7 +1,7 @@
 package main
 
 import (
-	"errors"
+	"fmt"
 	"os"
 	"strconv"
 )
@@ -9,7 +9,7 @@ import (
 type Config struct {
 	Postgres struct {
 		Host     string
-		Port     uint
+		Port     int
 		User     string
 		Password string
 		Database string
@@ -21,34 +21,69 @@ type Config struct {
 }
 
 func LoadConfig() (*Config, error) {
-	var cfg Config
+	cfg := &Config{}
 
-	cfg.Postgres.Host = os.Getenv("POSTGRES_HOST")
-	portStr := os.Getenv("POSTGRES_PORT")
+	if err := loadPostgres(cfg); err != nil {
+		return nil, err
+	}
 
-	port, err := strconv.ParseUint(portStr, 10, 32)
+	if err := loadSecurity(cfg); err != nil {
+		return nil, err
+	}
+
+	return cfg, nil
+}
+
+func loadPostgres(cfg *Config) error {
+	var err error
+
+	if cfg.Postgres.Host, err = loadString("POSTGRES_HOST"); err != nil {
+		return err
+	}
+
+	if cfg.Postgres.Port, err = loadNumber("POSTGRES_PORT"); err != nil {
+		return err
+	}
+
+	if cfg.Postgres.User, err = loadString("POSTGRES_USER"); err != nil {
+		return err
+	}
+
+	if cfg.Postgres.Password, err = loadString("POSTGRES_PASSWORD"); err != nil {
+		return err
+	}
+
+	if cfg.Postgres.Database, err = loadString("POSTGRES_DB"); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func loadSecurity(cfg *Config) error {
+	var err error
+	if cfg.Security.Key, err = loadString("SECURITY_KEY"); err != nil {
+		return err
+	}
+	return nil
+}
+
+func loadString(env string) (string, error) {
+	value := os.Getenv(env)
+	if value == "" {
+		return "", fmt.Errorf("%s is not defined", env)
+	}
+	return value, nil
+}
+
+func loadNumber(env string) (int, error) {
+	value := os.Getenv(env)
+	if value == "" {
+		return 0, fmt.Errorf("%s is not defined", env)
+	}
+	number, err := strconv.ParseInt(value, 10, 0)
 	if err != nil {
-		return nil, errors.New("invalid Postgres port")
+		return 0, fmt.Errorf("%s is invalid", env)
 	}
-
-	cfg.Postgres.Port = uint(port)
-	cfg.Postgres.User = os.Getenv("POSTGRES_USER")
-	cfg.Postgres.Password = os.Getenv("POSTGRES_PASSWORD")
-	cfg.Postgres.Database = os.Getenv("POSTGRES_DB")
-
-	cfg.Security.Key = os.Getenv("SECURITY_KEY")
-
-	if cfg.Postgres.Host == "" {
-		return nil, errors.New("Postgres host is empty")
-	}
-
-	if cfg.Postgres.Port == 0 {
-		return nil, errors.New("Postgres port is invalid")
-	}
-
-	if cfg.Security.Key == "" {
-		return nil, errors.New("Security key is empty")
-	}
-
-	return &cfg, nil
+	return int(number), nil
 }
