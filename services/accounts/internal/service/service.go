@@ -22,8 +22,12 @@ var (
 )
 
 type Service struct {
+	logger *slog.Logger
+
 	storage Storage
-	logger  *slog.Logger
+
+	accountCreatedPublisher AccountCreatedPublisher
+	accountDeletedPublisher AccountDeletedPublisher
 }
 
 func (svc *Service) GetAccountByID(ctx context.Context, id uuid.UUID) (*domain.Account, error) {
@@ -95,6 +99,8 @@ func (svc *Service) CreateAccount(ctx context.Context, phone string, password st
 		return nil, ErrInternal
 	}
 
+	svc.accountCreatedPublisher.PublishAccountCreated(ctx, account)
+
 	return account, nil
 }
 
@@ -113,6 +119,9 @@ func (svc *Service) DeleteAccount(ctx context.Context, id uuid.UUID) error {
 
 		return ErrInternal
 	}
+
+	svc.accountDeletedPublisher.PublishAccountDeleted(ctx, id)
+
 	return nil
 }
 
@@ -243,9 +252,16 @@ func (svc *Service) updateAccount(ctx context.Context, account *domain.Account, 
 	return nil
 }
 
-func NewService(storage Storage, logger *slog.Logger) *Service {
+func NewService(
+	logger *slog.Logger,
+	storage Storage,
+	accountCreatedPublisher AccountCreatedPublisher,
+	accountDeletedPublisher AccountDeletedPublisher,
+) *Service {
 	return &Service{
-		storage: storage,
-		logger:  logger,
+		logger:                  logger,
+		storage:                 storage,
+		accountCreatedPublisher: accountCreatedPublisher,
+		accountDeletedPublisher: accountDeletedPublisher,
 	}
 }

@@ -39,10 +39,11 @@ func main() {
 		logger.Error(err.Error())
 		panic(err)
 	}
+	defer postgresConnection.Close(context.Background())
 
 	postgresStorage := postgres.NewStorage(postgresConnection)
 
-	service := service.NewService(postgresStorage, logger)
+	service := service.NewService(logger, postgresStorage, nil, nil)
 
 	serviceWrapper := rest.NewWrapper(service, logger)
 	securityHandler := rest.NewJwtSecurityHandler([]byte(cfg.Security.Key))
