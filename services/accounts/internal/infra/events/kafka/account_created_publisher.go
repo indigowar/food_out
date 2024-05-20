@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/segmentio/kafka-go"
+	"google.golang.org/protobuf/proto"
 
 	"github.com/indigowar/food_out/services/accounts/internal/domain"
 	"github.com/indigowar/food_out/services/accounts/internal/service"
@@ -18,7 +19,15 @@ var _ service.AccountCreatedPublisher = &AccountCreatedPublisher{}
 
 // PublishAccountCreated implements service.AccountCreatedPublisher.
 func (a *AccountCreatedPublisher) PublishAccountCreated(ctx context.Context, account *domain.Account) error {
-	panic("unimplemented")
+	data, err := proto.Marshal(&AccountCreated{
+		Id:    account.ID().String(),
+		Phone: account.Phone(),
+	})
+	if err != nil {
+		return err
+	}
+
+	return a.writer.WriteMessages(ctx, kafka.Message{Value: data})
 }
 
 func NewAccountCreatedPublisher(host string, port int, topic string, partition int) *AccountCreatedPublisher {

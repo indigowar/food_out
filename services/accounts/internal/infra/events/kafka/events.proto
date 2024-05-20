@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+package events;
+option go_package="github.com/indigowar/food_out/services/accounts/internal/infra/events/kafka";
+
+message AccountCreated {
+  string id = 1;
+  string phone = 2;
+}
+
+message AccountDeleted { string id = 1; }

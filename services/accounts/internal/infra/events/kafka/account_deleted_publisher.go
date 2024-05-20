@@ -6,6 +6,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/segmentio/kafka-go"
+	"google.golang.org/protobuf/proto"
 
 	"github.com/indigowar/food_out/services/accounts/internal/service"
 )
@@ -18,7 +19,14 @@ var _ service.AccountDeletedPublisher = &AccountDeletedPublisher{}
 
 // PublishAccountDeleted implements service.AccountDeletedPublisher.
 func (a *AccountDeletedPublisher) PublishAccountDeleted(ctx context.Context, id uuid.UUID) error {
-	panic("unimplemented")
+	data, err := proto.Marshal(&AccountDeleted{
+		Id: id.String(),
+	})
+	if err != nil {
+		return err
+	}
+
+	return a.writer.WriteMessages(ctx, kafka.Message{Value: data})
 }
 
 func NewAccountDeletedPublisher(host string, port int, topic string, partition int) *AccountDeletedPublisher {
