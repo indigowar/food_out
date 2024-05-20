@@ -13,6 +13,7 @@ import (
 
 	"github.com/indigowar/food_out/services/accounts/internal/infra/delivery/rest"
 	"github.com/indigowar/food_out/services/accounts/internal/infra/delivery/rest/api"
+	"github.com/indigowar/food_out/services/accounts/internal/infra/events/kafka"
 	"github.com/indigowar/food_out/services/accounts/internal/infra/storage/postgres"
 	"github.com/indigowar/food_out/services/accounts/internal/service"
 )
@@ -43,7 +44,25 @@ func main() {
 
 	postgresStorage := postgres.NewStorage(postgresConnection)
 
-	service := service.NewService(logger, postgresStorage, nil, nil)
+	accountCreatedPublisher := kafka.NewAccountCreatedPublisher(
+		cfg.Kafka.Host,
+		cfg.Kafka.Port,
+		cfg.Kafka.AccountCreatedTopic,
+		0,
+	)
+	accountDeletedPublisher := kafka.NewAccountDeletedPublisher(
+		cfg.Kafka.Host,
+		cfg.Kafka.Port,
+		cfg.Kafka.AccountDeletedTopic,
+		0,
+	)
+
+	service := service.NewService(
+		logger,
+		postgresStorage,
+		accountCreatedPublisher,
+		accountDeletedPublisher,
+	)
 
 	serviceWrapper := rest.NewWrapper(service, logger)
 	securityHandler := rest.NewJwtSecurityHandler([]byte(cfg.Security.Key))

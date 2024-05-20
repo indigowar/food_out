@@ -18,6 +18,13 @@ type Config struct {
 	Security struct {
 		Key string
 	}
+
+	Kafka struct {
+		Host                string
+		Port                int
+		AccountCreatedTopic string
+		AccountDeletedTopic string
+	}
 }
 
 func LoadConfig() (*Config, error) {
@@ -28,6 +35,10 @@ func LoadConfig() (*Config, error) {
 	}
 
 	if err := loadSecurity(cfg); err != nil {
+		return nil, err
+	}
+
+	if err := loadKafka(cfg); err != nil {
 		return nil, err
 	}
 
@@ -65,6 +76,28 @@ func loadSecurity(cfg *Config) error {
 	if cfg.Security.Key, err = loadString("SECURITY_KEY"); err != nil {
 		return err
 	}
+	return nil
+}
+
+func loadKafka(cfg *Config) error {
+	var err error
+
+	if cfg.Kafka.Host, err = loadString("KAFKA_HOST"); err != nil {
+		return err
+	}
+
+	if cfg.Kafka.Port, err = loadNumber("KAFKA_PORT"); err != nil {
+		return err
+	}
+
+	if cfg.Kafka.AccountCreatedTopic, err = loadString("KAFKA_ACCOUNT_CREATED_TOPIC"); err != nil {
+		return err
+	}
+
+	if cfg.Kafka.AccountDeletedTopic, err = loadString("KAFKA_ACCOUNT_DELETED_TOPIC"); err != nil {
+		return err
+	}
+
 	return nil
 }
 
