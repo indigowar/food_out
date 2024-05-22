@@ -32,9 +32,10 @@ func (a *AccountCreatedPublisher) PublishAccountCreated(ctx context.Context, acc
 
 func NewAccountCreatedPublisher(host string, port int, topic string, partition int) *AccountCreatedPublisher {
 	return &AccountCreatedPublisher{
-		writer: kafka.NewWriter(kafka.WriterConfig{
-			Brokers: []string{fmt.Sprintf("%s:%d", host, port)},
-			Topic:   topic,
-		}),
+		writer: &kafka.Writer{
+			Addr:                   kafka.TCP(fmt.Sprintf("%s:%d", host, port)),
+			Topic:                  topic,
+			AllowAutoTopicCreation: true,
+		},
 	}
 }
