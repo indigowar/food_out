@@ -92,19 +92,20 @@ func (suite *addDishCommandSuite) TestAddDish_MenuNotInStorage() {
 	dish, err := suite.cmd.AddDish(context.Background(), input)
 
 	suite.NotNil(err, "AddDish should return an error, restaurant is not found")
-	suite.Nil(dish, "AddDish should return an empty id, restaurant is not found")
-	suite.ErrorIs(err, ErrRestaurantNotFound, "AddDish should return ErrRestaurantNotFound")
+	suite.Equal(uuid.UUID{}, dish, "AddDish should return an empty id, restaurant is not found")
+	suite.ErrorIs(err, ErrMenuNotFound, "AddDish should return ErrMenuNotFound")
 }
 
 func (suite *addDishCommandSuite) TestAddDish_Valid() {
 	suite.restaurantStorage.RestaurantExistsFunc = mockRestaurantExists(true, nil)
 	suite.menuStorage.GetMenuFunc = mockGetMenu(&domain.Menu{}, nil)
+	suite.dishStorage.AddDishFunc = mockAddDish(nil)
 	suite.menuStorage.UpdateMenuFunc = mockUpdateMenu(nil)
 
 	input := AddDishArgument{uuid.New(), uuid.New(), "Name", validUrl, 100.0}
 	dish, err := suite.cmd.AddDish(context.Background(), input)
 
-	suite.NotNil(err, "AddDish should not return an error")
+	suite.Nil(err, "AddDish should not return an error: %s", err)
 	suite.NotEqual(uuid.UUID{}, dish, "AddDish should return a valid id of created dish")
 }
 

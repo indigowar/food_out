@@ -13,3 +13,7 @@ type Menu struct {
 	Image      *url.URL
 	Dishes     []uuid.UUID
 }
+
+func (m *Menu) AddDish(id uuid.UUID) {
+	m.Dishes = append(m.Dishes, id)
+}
