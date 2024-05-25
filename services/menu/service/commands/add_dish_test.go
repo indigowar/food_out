@@ -3,7 +3,9 @@ package commands
 import (
 	"context"
 	"github.com/indigowar/food_out/services/menu/domain"
+	"log/slog"
 	"net/url"
+	"os"
 	"testing"
 
 	"github.com/google/uuid"
@@ -29,7 +31,7 @@ func (suite *addDishCommandSuite) SetupTest() {
 		&suite.dishStorage,
 		&suite.menuStorage,
 		&suite.restaurantStorage,
-		nil,
+		slog.New(slog.NewTextHandler(os.Stdout, nil)),
 	)
 }
 
