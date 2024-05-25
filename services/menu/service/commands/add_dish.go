@@ -61,7 +61,7 @@ func (cmd *AddDishCommand) AddDish(ctx context.Context, args AddDishArgument) (u
 		return uuid.UUID{}, err
 	}
 
-	menu.AddDish(dish.ID)
+	menu.AddDish(dish.ID())
 
 	if err := cmd.dishes.AddDish(ctx, dish); err != nil {
 		if errors.Is(err, ErrAlreadyExists) {
@@ -76,7 +76,7 @@ func (cmd *AddDishCommand) AddDish(ctx context.Context, args AddDishArgument) (u
 		return uuid.UUID{}, err
 	}
 
-	return dish.ID, nil
+	return dish.ID(), nil
 }
 
 func (cmd *AddDishCommand) logInternalError(action string, reason string, err error) {
