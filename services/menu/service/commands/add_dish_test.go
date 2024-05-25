@@ -12,6 +12,7 @@ import (
 
 // just a valid Url for tests
 var validUrl, _ = url.Parse("https://google.com")
+var validMenu, _ = domain.NewMenu("ValidMenu", uuid.New(), validUrl)
 
 type addDishCommandSuite struct {
 	suite.Suite
@@ -98,7 +99,7 @@ func (suite *addDishCommandSuite) TestAddDish_MenuNotInStorage() {
 
 func (suite *addDishCommandSuite) TestAddDish_Valid() {
 	suite.restaurantStorage.RestaurantExistsFunc = mockRestaurantExists(true, nil)
-	suite.menuStorage.GetMenuFunc = mockGetMenu(&domain.Menu{}, nil)
+	suite.menuStorage.GetMenuFunc = mockGetMenu(validMenu, nil)
 	suite.dishStorage.AddDishFunc = mockAddDish(nil)
 	suite.menuStorage.UpdateMenuFunc = mockUpdateMenu(nil)
 
