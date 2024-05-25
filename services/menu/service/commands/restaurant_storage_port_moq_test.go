@@ -22,6 +22,9 @@ var _ RestaurantStoragePort = &RestaurantStoragePortMock{}
 //			AddRestaurantFunc: func(ctx context.Context, id uuid.UUID) error {
 //				panic("mock out the AddRestaurant method")
 //			},
+//			RestaurantExistsFunc: func(ctx context.Context, id uuid.UUID) (bool, error) {
+//				panic("mock out the RestaurantExists method")
+//			},
 //		}
 //
 //		// use mockedRestaurantStoragePort in code that requires RestaurantStoragePort
@@ -32,6 +35,9 @@ type RestaurantStoragePortMock struct {
 	// AddRestaurantFunc mocks the AddRestaurant method.
 	AddRestaurantFunc func(ctx context.Context, id uuid.UUID) error
 
+	// RestaurantExistsFunc mocks the RestaurantExists method.
+	RestaurantExistsFunc func(ctx context.Context, id uuid.UUID) (bool, error)
+
 	// calls tracks calls to the methods.
 	calls struct {
 		// AddRestaurant holds details about calls to the AddRestaurant method.
@@ -41,8 +47,16 @@ type RestaurantStoragePortMock struct {
 			// ID is the id argument value.
 			ID uuid.UUID
 		}
+		// RestaurantExists holds details about calls to the RestaurantExists method.
+		RestaurantExists []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
+			// ID is the id argument value.
+			ID uuid.UUID
+		}
 	}
-	lockAddRestaurant sync.RWMutex
+	lockAddRestaurant    sync.RWMutex
+	lockRestaurantExists sync.RWMutex
 }
 
 // AddRestaurant calls AddRestaurantFunc.
@@ -78,5 +92,41 @@ func (mock *RestaurantStoragePortMock) AddRestaurantCalls() []struct {
 	mock.lockAddRestaurant.RLock()
 	calls = mock.calls.AddRestaurant
 	mock.lockAddRestaurant.RUnlock()
+	return calls
+}
+
+// RestaurantExists calls RestaurantExistsFunc.
+func (mock *RestaurantStoragePortMock) RestaurantExists(ctx context.Context, id uuid.UUID) (bool, error) {
+	if mock.RestaurantExistsFunc == nil {
+		panic("RestaurantStoragePortMock.RestaurantExistsFunc: method is nil but RestaurantStoragePort.RestaurantExists was just called")
+	}
+	callInfo := struct {
+		Ctx context.Context
+		ID  uuid.UUID
+	}{
+		Ctx: ctx,
+		ID:  id,
+	}
+	mock.lockRestaurantExists.Lock()
+	mock.calls.RestaurantExists = append(mock.calls.RestaurantExists, callInfo)
+	mock.lockRestaurantExists.Unlock()
+	return mock.RestaurantExistsFunc(ctx, id)
+}
+
+// RestaurantExistsCalls gets all the calls that were made to RestaurantExists.
+// Check the length with:
+//
+//	len(mockedRestaurantStoragePort.RestaurantExistsCalls())
+func (mock *RestaurantStoragePortMock) RestaurantExistsCalls() []struct {
+	Ctx context.Context
+	ID  uuid.UUID
+} {
+	var calls []struct {
+		Ctx context.Context
+		ID  uuid.UUID
+	}
+	mock.lockRestaurantExists.RLock()
+	calls = mock.calls.RestaurantExists
+	mock.lockRestaurantExists.RUnlock()
 	return calls
 }

@@ -10,5 +10,6 @@ import (
 
 // RestaurantStoragePort - is a port to restaurant storage
 type RestaurantStoragePort interface {
+	RestaurantExists(ctx context.Context, id uuid.UUID) (bool, error)
 	AddRestaurant(ctx context.Context, id uuid.UUID) error
 }
