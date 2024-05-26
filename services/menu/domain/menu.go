@@ -66,6 +66,11 @@ func (m *Menu) RemoveDish(dish uuid.UUID) error {
 	return nil
 }
 
+func (m *Menu) HasDish(dish uuid.UUID) bool {
+	_, ok := m.dishes[dish]
+	return ok
+}
+
 func NewMenu(name string, restaurant uuid.UUID, image *url.URL) (*Menu, error) {
 	menu := Menu{id: uuid.New(), restaurant: restaurant, dishes: make(map[uuid.UUID]struct{})}
 

@@ -8,6 +8,8 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/suite"
+
+	"github.com/indigowar/food_out/services/menu/domain"
 )
 
 type deleteDishTestSuite struct {
@@ -15,15 +17,26 @@ type deleteDishTestSuite struct {
 
 	dishStorage       DishStoragePortMock
 	restaurantStorage RestaurantStoragePortMock
-	cmd               *DeleteDishCommand
+	menuStorage       MenuStoragePortMock
+
+	cmd *DeleteDishCommand
+
+	restaurantId uuid.UUID
+	dishId       uuid.UUID
+	menu         *domain.Menu
 }
 
 func (suite *deleteDishTestSuite) SetupTest() {
 	suite.cmd = NewDeleteDishCommand(
 		&suite.dishStorage,
 		&suite.restaurantStorage,
+		&suite.menuStorage,
 		slog.New(slog.NewTextHandler(os.Stdout, nil)),
 	)
+
+	suite.restaurantId = uuid.New()
+	suite.dishId = uuid.New()
+	suite.menu, _ = domain.NewMenu("Menu", suite.restaurantId, validUrl)
 }
 
 func (suite *deleteDishTestSuite) TestDeleteDish_InvalidUUID() {
@@ -51,11 +64,25 @@ func (suite *deleteDishTestSuite) TestDeleteDish_RestaurantNotFound() {
 	suite.ErrorIs(err, ErrRestaurantNotFound, "DeleteDish should return ErrRestaurantNotFound")
 }
 
+func (suite *deleteDishTestSuite) TestDeleteDish_NoMenuWithGivenDish() {
+	suite.restaurantStorage.RestaurantExistsFunc = mockRestaurantExists(true, nil)
+	suite.menuStorage.GetMenuByRestaurantFunc = mockGetMenuByRestaurant([]*domain.Menu{suite.menu}, nil)
+
+	err := suite.cmd.DeleteDish(context.Background(), uuid.New(), suite.dishId)
+
+	suite.NotNil(err, "DeleteDish should return an error, when dish is not found")
+	suite.ErrorIs(err, ErrDishNotFound, "DeleteDish should return ErrDishNotFound")
+
+}
+
 func (suite *deleteDishTestSuite) TestDeleteDish_DishNotFound() {
 	suite.restaurantStorage.RestaurantExistsFunc = mockRestaurantExists(true, nil)
+	suite.menuStorage.GetMenuByRestaurantFunc = mockGetMenuByRestaurant([]*domain.Menu{suite.menu}, nil)
 	suite.dishStorage.DeleteDishFunc = mockDeleteDish(ErrNotFound)
 
-	err := suite.cmd.DeleteDish(context.Background(), uuid.New(), uuid.New())
+	suite.menu.AddDish(suite.dishId)
+
+	err := suite.cmd.DeleteDish(context.Background(), uuid.New(), suite.dishId)
 
 	suite.NotNil(err, "DeleteDish should return an error, when dish is not found")
 	suite.ErrorIs(err, ErrDishNotFound, "DeleteDish should return ErrDishNotFound")
@@ -63,9 +90,12 @@ func (suite *deleteDishTestSuite) TestDeleteDish_DishNotFound() {
 
 func (suite *deleteDishTestSuite) TestDeleteDish_Valid() {
 	suite.restaurantStorage.RestaurantExistsFunc = mockRestaurantExists(true, nil)
+	suite.menuStorage.GetMenuByRestaurantFunc = mockGetMenuByRestaurant([]*domain.Menu{suite.menu}, nil)
 	suite.dishStorage.DeleteDishFunc = mockDeleteDish(nil)
 
-	err := suite.cmd.DeleteDish(context.Background(), uuid.New(), uuid.New())
+	suite.menu.AddDish(suite.dishId)
+
+	err := suite.cmd.DeleteDish(context.Background(), suite.restaurantId, suite.dishId)
 
 	suite.Nil(err, "DeleteDish should not return an error, when dish is not found")
 }

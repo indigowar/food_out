@@ -14,6 +14,12 @@ func mockGetMenu(menu *domain.Menu, err error) func(context.Context, uuid.UUID) 
 	}
 }
 
+func mockGetMenuByRestaurant(menu []*domain.Menu, err error) func(context.Context, uuid.UUID) ([]*domain.Menu, error) {
+	return func(_ context.Context, _ uuid.UUID) ([]*domain.Menu, error) {
+		return menu, err
+	}
+}
+
 func mockAddMenu(err error) func(context.Context, *domain.Menu) error {
 	return func(_ context.Context, _ *domain.Menu) error {
 		return err

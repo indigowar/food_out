@@ -29,6 +29,9 @@ var _ MenuStoragePort = &MenuStoragePortMock{}
 //			GetMenuFunc: func(ctx context.Context, id uuid.UUID) (*domain.Menu, error) {
 //				panic("mock out the GetMenu method")
 //			},
+//			GetMenuByRestaurantFunc: func(ctx context.Context, restaurant uuid.UUID) ([]*domain.Menu, error) {
+//				panic("mock out the GetMenuByRestaurant method")
+//			},
 //			UpdateMenuFunc: func(ctx context.Context, menu *domain.Menu) error {
 //				panic("mock out the UpdateMenu method")
 //			},
@@ -47,6 +50,9 @@ type MenuStoragePortMock struct {
 
 	// GetMenuFunc mocks the GetMenu method.
 	GetMenuFunc func(ctx context.Context, id uuid.UUID) (*domain.Menu, error)
+
+	// GetMenuByRestaurantFunc mocks the GetMenuByRestaurant method.
+	GetMenuByRestaurantFunc func(ctx context.Context, restaurant uuid.UUID) ([]*domain.Menu, error)
 
 	// UpdateMenuFunc mocks the UpdateMenu method.
 	UpdateMenuFunc func(ctx context.Context, menu *domain.Menu) error
@@ -74,6 +80,13 @@ type MenuStoragePortMock struct {
 			// ID is the id argument value.
 			ID uuid.UUID
 		}
+		// GetMenuByRestaurant holds details about calls to the GetMenuByRestaurant method.
+		GetMenuByRestaurant []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
+			// Restaurant is the restaurant argument value.
+			Restaurant uuid.UUID
+		}
 		// UpdateMenu holds details about calls to the UpdateMenu method.
 		UpdateMenu []struct {
 			// Ctx is the ctx argument value.
@@ -82,10 +95,11 @@ type MenuStoragePortMock struct {
 			Menu *domain.Menu
 		}
 	}
-	lockAddMenu    sync.RWMutex
-	lockDeleteMenu sync.RWMutex
-	lockGetMenu    sync.RWMutex
-	lockUpdateMenu sync.RWMutex
+	lockAddMenu             sync.RWMutex
+	lockDeleteMenu          sync.RWMutex
+	lockGetMenu             sync.RWMutex
+	lockGetMenuByRestaurant sync.RWMutex
+	lockUpdateMenu          sync.RWMutex
 }
 
 // AddMenu calls AddMenuFunc.
@@ -193,6 +207,42 @@ func (mock *MenuStoragePortMock) GetMenuCalls() []struct {
 	mock.lockGetMenu.RLock()
 	calls = mock.calls.GetMenu
 	mock.lockGetMenu.RUnlock()
+	return calls
+}
+
+// GetMenuByRestaurant calls GetMenuByRestaurantFunc.
+func (mock *MenuStoragePortMock) GetMenuByRestaurant(ctx context.Context, restaurant uuid.UUID) ([]*domain.Menu, error) {
+	if mock.GetMenuByRestaurantFunc == nil {
+		panic("MenuStoragePortMock.GetMenuByRestaurantFunc: method is nil but MenuStoragePort.GetMenuByRestaurant was just called")
+	}
+	callInfo := struct {
+		Ctx        context.Context
+		Restaurant uuid.UUID
+	}{
+		Ctx:        ctx,
+		Restaurant: restaurant,
+	}
+	mock.lockGetMenuByRestaurant.Lock()
+	mock.calls.GetMenuByRestaurant = append(mock.calls.GetMenuByRestaurant, callInfo)
+	mock.lockGetMenuByRestaurant.Unlock()
+	return mock.GetMenuByRestaurantFunc(ctx, restaurant)
+}
+
+// GetMenuByRestaurantCalls gets all the calls that were made to GetMenuByRestaurant.
+// Check the length with:
+//
+//	len(mockedMenuStoragePort.GetMenuByRestaurantCalls())
+func (mock *MenuStoragePortMock) GetMenuByRestaurantCalls() []struct {
+	Ctx        context.Context
+	Restaurant uuid.UUID
+} {
+	var calls []struct {
+		Ctx        context.Context
+		Restaurant uuid.UUID
+	}
+	mock.lockGetMenuByRestaurant.RLock()
+	calls = mock.calls.GetMenuByRestaurant
+	mock.lockGetMenuByRestaurant.RUnlock()
 	return calls
 }
 
