@@ -18,4 +18,6 @@ var (
 
 	ErrRestaurantNotFound      = fmt.Errorf("restaurant %w", ErrNotFound)
 	ErrRestaurantAlreadyExists = fmt.Errorf("restaurant %w", ErrAlreadyExists)
+
+	ErrInternal = errors.New("internal service error")
 )
