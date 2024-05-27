@@ -31,6 +31,10 @@ func (m *Menu) SetName(value string) error {
 	return nil
 }
 
+func (m *Menu) Restaurant() uuid.UUID {
+	return m.restaurant
+}
+
 func (m *Menu) Image() *url.URL {
 	return m.image
 }
@@ -47,7 +51,7 @@ func (m *Menu) Dishes() []uuid.UUID {
 	dishes := make([]uuid.UUID, len(m.dishes), 0)
 
 	i := 0
-	for v, _ := range m.dishes {
+	for v := range m.dishes {
 		dishes[i] = v
 	}
 
