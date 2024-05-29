@@ -11,4 +11,5 @@ import (
 // RestaurantRetriever- a port to retrieve restaurants in the service
 type RestaurantRetriever interface {
 	GetRestaurants(ctx context.Context) ([]uuid.UUID, error)
+	RestaurantExists(ctx context.Context, id uuid.UUID) (bool, error)
 }
