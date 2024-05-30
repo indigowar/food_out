@@ -55,7 +55,16 @@ func (d *Dish) Price() float64 {
 }
 
 func NewDish(name string, image *url.URL, price float64) (*Dish, error) {
-	dish := Dish{id: uuid.New()}
+	return NewDishWithID(
+		uuid.New(),
+		name,
+		image,
+		price,
+	)
+}
+
+func NewDishWithID(id uuid.UUID, name string, image *url.URL, price float64) (*Dish, error) {
+	dish := Dish{id: id}
 
 	if err := dish.SetName(name); err != nil {
 		return nil, err
