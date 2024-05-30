@@ -93,3 +93,75 @@ func (q *Queries) RetrieveDishesByRestaurant(ctx context.Context, restaurant pgt
 	}
 	return items, nil
 }
+
+const retrieveDishesIdsByMenu = `-- name: RetrieveDishesIdsByMenu :many
+SELECT dish FROM menu_dish
+WHERE menu = $1
+`
+
+func (q *Queries) RetrieveDishesIdsByMenu(ctx context.Context, menu pgtype.UUID) ([]pgtype.UUID, error) {
+	rows, err := q.db.Query(ctx, retrieveDishesIdsByMenu, menu)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []pgtype.UUID
+	for rows.Next() {
+		var dish pgtype.UUID
+		if err := rows.Scan(&dish); err != nil {
+			return nil, err
+		}
+		items = append(items, dish)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const retrieveMenuByID = `-- name: RetrieveMenuByID :one
+SELECT id, name, image, restaurant, is_deleted FROM menus WHERE id = $1
+`
+
+func (q *Queries) RetrieveMenuByID(ctx context.Context, id pgtype.UUID) (Menu, error) {
+	row := q.db.QueryRow(ctx, retrieveMenuByID, id)
+	var i Menu
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Image,
+		&i.Restaurant,
+		&i.IsDeleted,
+	)
+	return i, err
+}
+
+const retrieveMenusByRestaurant = `-- name: RetrieveMenusByRestaurant :many
+SELECT id, name, image, restaurant, is_deleted FROM menus WHERE restaurant = $1
+`
+
+func (q *Queries) RetrieveMenusByRestaurant(ctx context.Context, restaurant pgtype.UUID) ([]Menu, error) {
+	rows, err := q.db.Query(ctx, retrieveMenusByRestaurant, restaurant)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Menu
+	for rows.Next() {
+		var i Menu
+		if err := rows.Scan(
+			&i.ID,
+			&i.Name,
+			&i.Image,
+			&i.Restaurant,
+			&i.IsDeleted,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}

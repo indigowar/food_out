@@ -76,7 +76,23 @@ func (m *Menu) HasDish(dish uuid.UUID) bool {
 }
 
 func NewMenu(name string, restaurant uuid.UUID, image *url.URL) (*Menu, error) {
-	menu := Menu{id: uuid.New(), restaurant: restaurant, dishes: make(map[uuid.UUID]struct{})}
+	return NewMenuFull(
+		uuid.New(),
+		name,
+		restaurant,
+		image,
+		make(map[uuid.UUID]struct{}),
+	)
+}
+
+func NewMenuFull(
+	id uuid.UUID,
+	name string,
+	restaurant uuid.UUID,
+	image *url.URL,
+	dishes map[uuid.UUID]struct{},
+) (*Menu, error) {
+	menu := Menu{id: id, restaurant: restaurant, dishes: dishes}
 
 	if err := menu.SetName(name); err != nil {
 		return nil, err
