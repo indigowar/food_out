@@ -5,6 +5,7 @@ import (
 	"net/url"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgtype"
 
 	"github.com/indigowar/food_out/services/menu/domain"
@@ -51,4 +52,11 @@ func menuToModel(menu data.Menu, dishes []pgtype.UUID) (*domain.Menu, error) {
 		imageUrl,
 		dishSet,
 	)
+}
+
+func isDuplicatedKeyError(err error) bool {
+	if pgError, ok := (err).(*pgconn.PgError); ok && pgError.Code == "23505" {
+		return true
+	}
+	return false
 }
