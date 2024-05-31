@@ -65,3 +65,12 @@ WHERE id = $1;
 SELECT id
 FROM menus
 WHERE restaurant = $1;
+
+-- name: InsertRestaurant :exec
+INSERT INTO restaurants(id)
+VALUES ($1);
+
+-- name: GetRestaurant :one
+SELECT *
+FROM restaurants
+WHERE id = $1;

@@ -50,6 +50,18 @@ func (q *Queries) DeleteMenuDishByMenu(ctx context.Context, menu pgtype.UUID) er
 	return err
 }
 
+const getRestaurant = `-- name: GetRestaurant :one
+SELECT id
+FROM restaurants
+WHERE id = $1
+`
+
+func (q *Queries) GetRestaurant(ctx context.Context, id pgtype.UUID) (pgtype.UUID, error) {
+	row := q.db.QueryRow(ctx, getRestaurant, id)
+	err := row.Scan(&id)
+	return id, err
+}
+
 const insertDish = `-- name: InsertDish :exec
 INSERT INTO dishes(id, name, image, price)
 VALUES ($1, $2, $3, $4)
@@ -106,6 +118,16 @@ func (q *Queries) InsertMenu(ctx context.Context, arg InsertMenuParams) error {
 		arg.Image,
 		arg.Restaurant,
 	)
+	return err
+}
+
+const insertRestaurant = `-- name: InsertRestaurant :exec
+INSERT INTO restaurants(id)
+VALUES ($1)
+`
+
+func (q *Queries) InsertRestaurant(ctx context.Context, id pgtype.UUID) error {
+	_, err := q.db.Exec(ctx, insertRestaurant, id)
 	return err
 }
 
