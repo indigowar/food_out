@@ -1,10 +1,12 @@
 package postgres
 
 import (
+	"context"
 	"fmt"
 	"net/url"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgtype"
 
@@ -59,4 +61,20 @@ func isDuplicatedKeyError(err error) bool {
 		return true
 	}
 	return false
+}
+
+func transaction(ctx context.Context, conn *pgx.Conn, action func(ctx context.Context, queries *data.Queries) error) error {
+	tx, err := conn.Begin(ctx)
+	if err != nil {
+		return fmt.Errorf("failed to create a transaction: %w", err)
+	}
+	defer tx.Rollback(ctx)
+
+	queries := data.New(tx)
+
+	if err := action(ctx, queries); err != nil {
+		return err
+	}
+
+	return tx.Commit(ctx)
 }

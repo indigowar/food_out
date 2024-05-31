@@ -11,14 +11,42 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+const deleteAllMenuDishByMenu = `-- name: DeleteAllMenuDishByMenu :exec
+DELETE FROM menu_dish WHERE menu = $1
+`
+
+func (q *Queries) DeleteAllMenuDishByMenu(ctx context.Context, menu pgtype.UUID) error {
+	_, err := q.db.Exec(ctx, deleteAllMenuDishByMenu, menu)
+	return err
+}
+
 const deleteDish = `-- name: DeleteDish :exec
-UPDATE dishes
-SET is_deleted = TRUE
-WHERE id = $1 AND is_deleted = FALSE
+DELETE FROM dishes
+WHERE id = $1
 `
 
 func (q *Queries) DeleteDish(ctx context.Context, id pgtype.UUID) error {
 	_, err := q.db.Exec(ctx, deleteDish, id)
+	return err
+}
+
+const deleteMenu = `-- name: DeleteMenu :exec
+DELETE FROM menus
+WHERE id = $1
+`
+
+func (q *Queries) DeleteMenu(ctx context.Context, id pgtype.UUID) error {
+	_, err := q.db.Exec(ctx, deleteMenu, id)
+	return err
+}
+
+const deleteMenuDishByMenu = `-- name: DeleteMenuDishByMenu :exec
+DELETE FROM menu_dish
+WHERE menu = $1
+`
+
+func (q *Queries) DeleteMenuDishByMenu(ctx context.Context, menu pgtype.UUID) error {
+	_, err := q.db.Exec(ctx, deleteMenuDishByMenu, menu)
 	return err
 }
 
@@ -44,8 +72,45 @@ func (q *Queries) InsertDish(ctx context.Context, arg InsertDishParams) error {
 	return err
 }
 
+const insertIntoMenuDish = `-- name: InsertIntoMenuDish :exec
+INSERT INTO menu_dish(menu, dish)
+VALUES ($1, $2)
+`
+
+type InsertIntoMenuDishParams struct {
+	Menu pgtype.UUID
+	Dish pgtype.UUID
+}
+
+func (q *Queries) InsertIntoMenuDish(ctx context.Context, arg InsertIntoMenuDishParams) error {
+	_, err := q.db.Exec(ctx, insertIntoMenuDish, arg.Menu, arg.Dish)
+	return err
+}
+
+const insertMenu = `-- name: InsertMenu :exec
+INSERT INTO menus(id, name, image, restaurant)
+VALUES ($1, $2, $3, $4)
+`
+
+type InsertMenuParams struct {
+	ID         pgtype.UUID
+	Name       string
+	Image      string
+	Restaurant pgtype.UUID
+}
+
+func (q *Queries) InsertMenu(ctx context.Context, arg InsertMenuParams) error {
+	_, err := q.db.Exec(ctx, insertMenu,
+		arg.ID,
+		arg.Name,
+		arg.Image,
+		arg.Restaurant,
+	)
+	return err
+}
+
 const retrieveDishByID = `-- name: RetrieveDishByID :one
-SELECT id, name, image, price, is_deleted FROM dishes WHERE id = $1 AND is_deleted = FALSE
+SELECT id, name, image, price FROM dishes WHERE id = $1
 `
 
 func (q *Queries) RetrieveDishByID(ctx context.Context, id pgtype.UUID) (Dish, error) {
@@ -56,16 +121,15 @@ func (q *Queries) RetrieveDishByID(ctx context.Context, id pgtype.UUID) (Dish, e
 		&i.Name,
 		&i.Image,
 		&i.Price,
-		&i.IsDeleted,
 	)
 	return i, err
 }
 
 const retrieveDishByMenu = `-- name: RetrieveDishByMenu :many
-SELECT d.id, d.name, d.image, d.price, d.is_deleted FROM dishes d
+SELECT d.id, d.name, d.image, d.price FROM dishes d
 JOIN menu_dish md ON dm.dish = d.id
 JOIN menus m ON m.id = md.menu
-WHERE m.id = $1 AND m.is_deleted = FALSE AND d.is_deleted = FALSE
+WHERE m.id = $1
 `
 
 func (q *Queries) RetrieveDishByMenu(ctx context.Context, id pgtype.UUID) ([]Dish, error) {
@@ -82,7 +146,6 @@ func (q *Queries) RetrieveDishByMenu(ctx context.Context, id pgtype.UUID) ([]Dis
 			&i.Name,
 			&i.Image,
 			&i.Price,
-			&i.IsDeleted,
 		); err != nil {
 			return nil, err
 		}
@@ -95,10 +158,10 @@ func (q *Queries) RetrieveDishByMenu(ctx context.Context, id pgtype.UUID) ([]Dis
 }
 
 const retrieveDishesByRestaurant = `-- name: RetrieveDishesByRestaurant :many
-SELECT d.id, d.name, d.image, d.price, d.is_deleted FROM dishes d
+SELECT d.id, d.name, d.image, d.price FROM dishes d
 JOIN menu_dish md ON dm.dish = d.id
 JOIN menus m ON m.id = md.menu
-WHERE m.restaurant = $1 AND m.is_deleted = FALSE
+WHERE m.restaurant = $1
 `
 
 func (q *Queries) RetrieveDishesByRestaurant(ctx context.Context, restaurant pgtype.UUID) ([]Dish, error) {
@@ -115,7 +178,6 @@ func (q *Queries) RetrieveDishesByRestaurant(ctx context.Context, restaurant pgt
 			&i.Name,
 			&i.Image,
 			&i.Price,
-			&i.IsDeleted,
 		); err != nil {
 			return nil, err
 		}
@@ -128,7 +190,8 @@ func (q *Queries) RetrieveDishesByRestaurant(ctx context.Context, restaurant pgt
 }
 
 const retrieveDishesIdsByMenu = `-- name: RetrieveDishesIdsByMenu :many
-SELECT dish FROM menu_dish
+SELECT md.dish FROM menu_dish md
+JOIN menus m ON md.menu = m.id
 WHERE menu = $1
 `
 
@@ -153,7 +216,7 @@ func (q *Queries) RetrieveDishesIdsByMenu(ctx context.Context, menu pgtype.UUID)
 }
 
 const retrieveMenuByID = `-- name: RetrieveMenuByID :one
-SELECT id, name, image, restaurant, is_deleted FROM menus WHERE id = $1 AND is_deleted = FALSE
+SELECT id, name, image, restaurant FROM menus WHERE id = $1
 `
 
 func (q *Queries) RetrieveMenuByID(ctx context.Context, id pgtype.UUID) (Menu, error) {
@@ -164,13 +227,12 @@ func (q *Queries) RetrieveMenuByID(ctx context.Context, id pgtype.UUID) (Menu, e
 		&i.Name,
 		&i.Image,
 		&i.Restaurant,
-		&i.IsDeleted,
 	)
 	return i, err
 }
 
 const retrieveMenusByRestaurant = `-- name: RetrieveMenusByRestaurant :many
-SELECT id, name, image, restaurant, is_deleted FROM menus WHERE restaurant = $1 AND is_deleted = FALSE
+SELECT id, name, image, restaurant FROM menus WHERE restaurant = $1
 `
 
 func (q *Queries) RetrieveMenusByRestaurant(ctx context.Context, restaurant pgtype.UUID) ([]Menu, error) {
@@ -187,7 +249,6 @@ func (q *Queries) RetrieveMenusByRestaurant(ctx context.Context, restaurant pgty
 			&i.Name,
 			&i.Image,
 			&i.Restaurant,
-			&i.IsDeleted,
 		); err != nil {
 			return nil, err
 		}
@@ -199,10 +260,36 @@ func (q *Queries) RetrieveMenusByRestaurant(ctx context.Context, restaurant pgty
 	return items, nil
 }
 
+const retrieveMenusIDsByRestaurant = `-- name: RetrieveMenusIDsByRestaurant :many
+SELECT id
+FROM menus
+WHERE restaurant = $1
+`
+
+func (q *Queries) RetrieveMenusIDsByRestaurant(ctx context.Context, restaurant pgtype.UUID) ([]pgtype.UUID, error) {
+	rows, err := q.db.Query(ctx, retrieveMenusIDsByRestaurant, restaurant)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []pgtype.UUID
+	for rows.Next() {
+		var id pgtype.UUID
+		if err := rows.Scan(&id); err != nil {
+			return nil, err
+		}
+		items = append(items, id)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const updateDish = `-- name: UpdateDish :exec
 UPDATE dishes
 SET name = $2, image = $3, price = $4
-WHERE id = $1 AND is_deleted = FALSE
+WHERE id = $1
 `
 
 type UpdateDishParams struct {
@@ -218,6 +305,29 @@ func (q *Queries) UpdateDish(ctx context.Context, arg UpdateDishParams) error {
 		arg.Name,
 		arg.Image,
 		arg.Price,
+	)
+	return err
+}
+
+const updateMenu = `-- name: UpdateMenu :exec
+UPDATE menus
+SET name = $2, image = $3, restaurant = $4
+WHERE id = $1
+`
+
+type UpdateMenuParams struct {
+	ID         pgtype.UUID
+	Name       string
+	Image      string
+	Restaurant pgtype.UUID
+}
+
+func (q *Queries) UpdateMenu(ctx context.Context, arg UpdateMenuParams) error {
+	_, err := q.db.Exec(ctx, updateMenu,
+		arg.ID,
+		arg.Name,
+		arg.Image,
+		arg.Restaurant,
 	)
 	return err
 }

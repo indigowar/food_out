@@ -9,11 +9,10 @@ import (
 )
 
 type Dish struct {
-	ID        pgtype.UUID
-	Name      string
-	Image     string
-	Price     float64
-	IsDeleted bool
+	ID    pgtype.UUID
+	Name  string
+	Image string
+	Price float64
 }
 
 type Menu struct {
@@ -21,7 +20,6 @@ type Menu struct {
 	Name       string
 	Image      string
 	Restaurant pgtype.UUID
-	IsDeleted  bool
 }
 
 type MenuDish struct {
