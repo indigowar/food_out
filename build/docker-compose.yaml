@@ -33,7 +33,7 @@ services:
     networks:
       - traefik-proxy-network
       - accounts-network
-      - message_queue_network
+      - message-queue-network
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.accounts.rule=Host(`accounts.localhost`)"
@@ -103,10 +103,64 @@ services:
       REDIS_DB: 0
       REDIS_PASSWORD: strong_and_complicated_password
 
+  menu_service:
+    container_name: menu_service
+    build:
+      context: ../services/menu
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    depends_on:
+      - menu_database
+    networks:
+      - traefik-proxy-network
+      - menu-network
+      - message-queue-network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.menu.rule=Host(`menu.localhost`)"
+      - "traefik.http.services.menu.loadbalancer.server.port=80"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: strong_and_complicated_password
+      POSTGRES_DB: menu
+      POSTGRES_HOST: menu_db
+      POSTGRES_PORT: 5432
+
+      SECURITY_KEY: "security key"
+
+      KAFKA_HOST: kafka
+      KAFKA_PORT: 9092
+
+  menu_database:
+    container_name: menu_db
+    image: postgres:15-alpine
+    restart: unless-stopped
+    networks:
+      - menu-network
+    volumes:
+      - ../.volumes/menu_db:/var/lib/postgresql/data:Z
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: strong_and_complicated_password
+      POSTGRES_DB: menu
+
+  menu_migrations:
+    container_name: menu_migrations
+    image: ghcr.io/kukymbr/goose-docker:3.21.1
+    depends_on:
+      - menu_database
+    networks:
+      - menu-network
+    environment:
+      GOOSE_DRIVER: postgres
+      GOOSE_DBSTRING: "host=menu_db port=5432 user=postgres password=strong_and_complicated_password dbname=menu"
+    volumes:
+      - ../services/menu/ports/storage/postgres/migrations:/migrations:ro
+
   zookeeper-1:
     image: confluentinc/cp-zookeeper:7.4.4
     networks:
-      - message_queue_network
+      - message-queue-network
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
@@ -117,7 +171,7 @@ services:
     depends_on:
       - zookeeper-1
     networks:
-      - message_queue_network
+      - message-queue-network
     environment:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: zookeeper-1:2181
@@ -133,5 +187,7 @@ networks:
     name: accounts-network
   auth-network:
     name: auth-network
-  message_queue_network:
-    name: message_queue_network
+  menu-network:
+    name: menu-network
+  message-queue-network:
+    name: message-queue-network
