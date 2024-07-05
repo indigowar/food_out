@@ -35,3 +35,8 @@ func (h *handler) RetrieveMenuByID(ctx context.Context, params api.RetrieveMenuB
 func (h *handler) RetrieveMenusByRestaurant(ctx context.Context, params api.RetrieveMenusByRestaurantParams) (api.RetrieveMenusByRestaurantRes, error) {
 	panic("unimplemented")
 }
+
+// ValidateRestaurantDishes implements api.Handler.
+func (h *handler) ValidateRestaurantDishes(ctx context.Context, req *api.ValidationList) (api.ValidateRestaurantDishesRes, error) {
+	panic("unimplemented")
+}
