@@ -1,0 +1,289 @@
+openapi: 3.0.0
+info:
+  title: Menu API
+  version: 1.0.0
+  description: A Menu Service API of Food Out
+  contact:
+    name: Indigowar
+    email: a10levsion@gmail.com
+
+
+servers:
+  - url: /api/v1
+    description: Local development server
+  - url: /api/v1
+    description: Staging server
+  - url: /api/v1
+    description: Production server
+
+tags:
+  - name: Dishes
+    description: Operations related to dishes
+  - name: Menu
+    description: Operations related to menu
+  - name: Restaurants
+    description: Operations related to restaurant
+
+paths:
+  /dish/{id}:
+    get:
+      operationId: RetrieveDishByID
+      summary: Retrieve dish by its ID
+      tags:
+        - Dishes
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: The ID of the dish to retrieve
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: The dish with provided ID
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Dish"
+        '404':
+          description: The dish is not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        '500':
+          description: Internal service error occurred
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /dish/menu/{id}:
+    get:
+      operationId: RetrieveDishesByMenuId
+      summary: Retrieve dishes by its menu ID
+      tags:
+        - Dishes
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: The ID of the menu
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Dishes of the menu
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Dish"
+        '404':
+          description: The menu is not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        '500':
+          description: Internal service error occurred
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+
+  /menu/{id}:
+    get:
+      operationId: RetrieveMenuByID
+      summary: Retrieve menu data by its ID
+      tags:
+        - Menu
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: The ID of the menu to retrieve
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Menu is found and retrieved
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Menu"
+        '404':
+          description: Menu is not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        '500':
+          description: Internal Service Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /menu/restaurant/{id}:
+    get:
+      operationId: RetrieveMenusByRestaurant
+      summary: Retrieve menu data by its restaurant's ID
+      tags:
+        - Menu
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: The ID of the restaurant
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: List of Menus of the Restaurant
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Menu"
+        '404':
+          description: Restaurant is not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        '500':
+          description: Internal Service Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+
+  /restaurant:
+    get:
+      operationId: RetrieveListOfRestaurants
+      summary: Retrieve list of IDs of restaurants
+      tags:
+        - Restaurants
+      responses:
+        '200':
+          description: List of Restaurants IDs
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+                  format: uuid
+        '500':
+          description: Internal Service Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /restaurant/validate-dishes:
+    post:
+      operationId: ValidateRestaurantDishes
+      summary: Validates restaurant ownership for dishes
+      tags:
+        - Restaurants
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ValidationList"
+      responses:
+        '200':
+          description: Validation is successfull
+        '400':
+          description: The provided list is invalid
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        '404':
+          description: Item is not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        '500':
+          description: Internal Service Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+
+components:
+  schemas:
+    Dish:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        image:
+          type: string
+          format: uri
+        price:
+          type: number
+          minimum: 0
+          exclusiveMinimum: true
+      required:
+        - id
+        - name
+        - image
+        - price
+    Menu:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        restaurant:
+          type: string
+          format: uuid
+        image:
+          type: string
+          format: uri
+        dishes:
+          type: array
+          items:
+            $ref: "#/components/schemas/Dish"
+    Error:
+      type: object
+      properties:
+        code:
+          type: number
+        message:
+          type: string
+      required:
+        - code
+        - message
+    ValidationList:
+      type: object
+      properties:
+        restaurant:
+          type: string
+          format: uuid
+        dishes:
+          type: array
+          items:
+            type: string
+            format: uuid
+      required:
+        - restaurant
+        - dishes
