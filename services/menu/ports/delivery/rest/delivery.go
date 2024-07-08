@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/indigowar/food_out/services/menu/ports/delivery/rest/api"
+	"github.com/indigowar/food_out/services/menu/service/queries"
 )
 
 type Delivery struct {
@@ -46,8 +47,19 @@ func (d *Delivery) Run(ctx context.Context) error {
 
 func New(
 	logger *slog.Logger,
+	dishById queries.GetDishByIDQuery,
+	menuById queries.GetMenuByIDQuery,
+	menuByRestaurant queries.GetRestaurantsMenusQuery,
+	restaurantList queries.GetRestaurantsQuery,
+	dishValidation queries.ValidateDishOwnershipQuery,
 ) (*Delivery, error) {
-	api, err := api.NewServer(&handler{})
+	api, err := api.NewServer(&handler{
+		dishById:         dishById,
+		menuById:         menuById,
+		menuByRestaurant: menuByRestaurant,
+		restaurantList:   restaurantList,
+		dishValidation:   dishValidation,
+	})
 	if err != nil {
 		return nil, fmt.Errorf("Failed to create API handler: %w", err)
 	}
