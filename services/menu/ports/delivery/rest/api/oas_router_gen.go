@@ -69,39 +69,6 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 					break
 				}
 
-				if len(elem) == 0 {
-					break
-				}
-				switch elem[0] {
-				case 'm': // Prefix: "menu/"
-					origElem := elem
-					if l := len("menu/"); len(elem) >= l && elem[0:l] == "menu/" {
-						elem = elem[l:]
-					} else {
-						break
-					}
-
-					// Param: "id"
-					// Leaf parameter
-					args[0] = elem
-					elem = ""
-
-					if len(elem) == 0 {
-						// Leaf node.
-						switch r.Method {
-						case "GET":
-							s.handleRetrieveDishesByMenuIdRequest([1]string{
-								args[0],
-							}, elemIsEscaped, w, r)
-						default:
-							s.notAllowed(w, r, "GET")
-						}
-
-						return
-					}
-
-					elem = origElem
-				}
 				// Param: "id"
 				// Leaf parameter
 				args[0] = elem
@@ -329,41 +296,6 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 					break
 				}
 
-				if len(elem) == 0 {
-					break
-				}
-				switch elem[0] {
-				case 'm': // Prefix: "menu/"
-					origElem := elem
-					if l := len("menu/"); len(elem) >= l && elem[0:l] == "menu/" {
-						elem = elem[l:]
-					} else {
-						break
-					}
-
-					// Param: "id"
-					// Leaf parameter
-					args[0] = elem
-					elem = ""
-
-					if len(elem) == 0 {
-						switch method {
-						case "GET":
-							// Leaf: RetrieveDishesByMenuId
-							r.name = "RetrieveDishesByMenuId"
-							r.summary = "Retrieve dishes by its menu ID"
-							r.operationID = "RetrieveDishesByMenuId"
-							r.pathPattern = "/dish/menu/{id}"
-							r.args = args
-							r.count = 1
-							return r, true
-						default:
-							return
-						}
-					}
-
-					elem = origElem
-				}
 				// Param: "id"
 				// Leaf parameter
 				args[0] = elem

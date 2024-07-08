@@ -73,22 +73,8 @@ func (s *Menu) Validate() error {
 
 	var failures []validate.FieldError
 	if err := func() error {
-		var failures []validate.FieldError
-		for i, elem := range s.Dishes {
-			if err := func() error {
-				if err := elem.Validate(); err != nil {
-					return err
-				}
-				return nil
-			}(); err != nil {
-				failures = append(failures, validate.FieldError{
-					Name:  fmt.Sprintf("[%d]", i),
-					Error: err,
-				})
-			}
-		}
-		if len(failures) > 0 {
-			return &validate.Error{Fields: failures}
+		if s.Dishes == nil {
+			return errors.New("nil is invalid value")
 		}
 		return nil
 	}(); err != nil {
@@ -115,47 +101,6 @@ func (s *RetrieveDishByIDNotFound) Validate() error {
 	alias := (*Error)(s)
 	if err := alias.Validate(); err != nil {
 		return err
-	}
-	return nil
-}
-
-func (s *RetrieveDishesByMenuIdInternalServerError) Validate() error {
-	alias := (*Error)(s)
-	if err := alias.Validate(); err != nil {
-		return err
-	}
-	return nil
-}
-
-func (s *RetrieveDishesByMenuIdNotFound) Validate() error {
-	alias := (*Error)(s)
-	if err := alias.Validate(); err != nil {
-		return err
-	}
-	return nil
-}
-
-func (s RetrieveDishesByMenuIdOKApplicationJSON) Validate() error {
-	alias := ([]Dish)(s)
-	if alias == nil {
-		return errors.New("nil is invalid value")
-	}
-	var failures []validate.FieldError
-	for i, elem := range alias {
-		if err := func() error {
-			if err := elem.Validate(); err != nil {
-				return err
-			}
-			return nil
-		}(); err != nil {
-			failures = append(failures, validate.FieldError{
-				Name:  fmt.Sprintf("[%d]", i),
-				Error: err,
-			})
-		}
-	}
-	if len(failures) > 0 {
-		return &validate.Error{Fields: failures}
 	}
 	return nil
 }

@@ -59,42 +59,6 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
 
-  /dish/menu/{id}:
-    get:
-      operationId: RetrieveDishesByMenuId
-      summary: Retrieve dishes by its menu ID
-      tags:
-        - Dishes
-      parameters:
-        - name: id
-          in: path
-          required: true
-          description: The ID of the menu
-          schema:
-            type: string
-            format: uuid
-      responses:
-        '200':
-          description: Dishes of the menu
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/Dish"
-        '404':
-          description: The menu is not found
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-        '500':
-          description: Internal service error occurred
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-
 
   /menu/{id}:
     get:
@@ -253,6 +217,8 @@ components:
         id:
           type: string
           format: uuid
+        name:
+          type: string
         restaurant:
           type: string
           format: uuid
@@ -262,7 +228,14 @@ components:
         dishes:
           type: array
           items:
-            $ref: "#/components/schemas/Dish"
+            type: string
+            format: uuid
+      required:
+        - id
+        - name
+        - restaurant
+        - image
+        - dishes
     Error:
       type: object
       properties:

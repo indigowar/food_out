@@ -57,52 +57,6 @@ func encodeRetrieveDishByIDResponse(response RetrieveDishByIDRes, w http.Respons
 	}
 }
 
-func encodeRetrieveDishesByMenuIdResponse(response RetrieveDishesByMenuIdRes, w http.ResponseWriter, span trace.Span) error {
-	switch response := response.(type) {
-	case *RetrieveDishesByMenuIdOKApplicationJSON:
-		w.Header().Set("Content-Type", "application/json; charset=utf-8")
-		w.WriteHeader(200)
-		span.SetStatus(codes.Ok, http.StatusText(200))
-
-		e := new(jx.Encoder)
-		response.Encode(e)
-		if _, err := e.WriteTo(w); err != nil {
-			return errors.Wrap(err, "write")
-		}
-
-		return nil
-
-	case *RetrieveDishesByMenuIdNotFound:
-		w.Header().Set("Content-Type", "application/json; charset=utf-8")
-		w.WriteHeader(404)
-		span.SetStatus(codes.Error, http.StatusText(404))
-
-		e := new(jx.Encoder)
-		response.Encode(e)
-		if _, err := e.WriteTo(w); err != nil {
-			return errors.Wrap(err, "write")
-		}
-
-		return nil
-
-	case *RetrieveDishesByMenuIdInternalServerError:
-		w.Header().Set("Content-Type", "application/json; charset=utf-8")
-		w.WriteHeader(500)
-		span.SetStatus(codes.Error, http.StatusText(500))
-
-		e := new(jx.Encoder)
-		response.Encode(e)
-		if _, err := e.WriteTo(w); err != nil {
-			return errors.Wrap(err, "write")
-		}
-
-		return nil
-
-	default:
-		return errors.Errorf("unexpected response type: %T", response)
-	}
-}
-
 func encodeRetrieveListOfRestaurantsResponse(response RetrieveListOfRestaurantsRes, w http.ResponseWriter, span trace.Span) error {
 	switch response := response.(type) {
 	case *RetrieveListOfRestaurantsOKApplicationJSON:

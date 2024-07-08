@@ -5,10 +5,6 @@ type RetrieveDishByIDRes interface {
 	retrieveDishByIDRes()
 }
 
-type RetrieveDishesByMenuIdRes interface {
-	retrieveDishesByMenuIdRes()
-}
-
 type RetrieveListOfRestaurantsRes interface {
 	retrieveListOfRestaurantsRes()
 }

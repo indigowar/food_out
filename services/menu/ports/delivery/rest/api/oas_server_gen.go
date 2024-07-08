@@ -14,12 +14,6 @@ type Handler interface {
 	//
 	// GET /dish/{id}
 	RetrieveDishByID(ctx context.Context, params RetrieveDishByIDParams) (RetrieveDishByIDRes, error)
-	// RetrieveDishesByMenuId implements RetrieveDishesByMenuId operation.
-	//
-	// Retrieve dishes by its menu ID.
-	//
-	// GET /dish/menu/{id}
-	RetrieveDishesByMenuId(ctx context.Context, params RetrieveDishesByMenuIdParams) (RetrieveDishesByMenuIdRes, error)
 	// RetrieveListOfRestaurants implements RetrieveListOfRestaurants operation.
 	//
 	// Retrieve list of IDs of restaurants.

@@ -284,40 +284,37 @@ func (s *Menu) Encode(e *jx.Encoder) {
 // encodeFields encodes fields.
 func (s *Menu) encodeFields(e *jx.Encoder) {
 	{
-		if s.ID.Set {
-			e.FieldStart("id")
-			s.ID.Encode(e)
-		}
+		e.FieldStart("id")
+		json.EncodeUUID(e, s.ID)
 	}
 	{
-		if s.Restaurant.Set {
-			e.FieldStart("restaurant")
-			s.Restaurant.Encode(e)
-		}
+		e.FieldStart("name")
+		e.Str(s.Name)
 	}
 	{
-		if s.Image.Set {
-			e.FieldStart("image")
-			s.Image.Encode(e)
-		}
+		e.FieldStart("restaurant")
+		json.EncodeUUID(e, s.Restaurant)
 	}
 	{
-		if s.Dishes != nil {
-			e.FieldStart("dishes")
-			e.ArrStart()
-			for _, elem := range s.Dishes {
-				elem.Encode(e)
-			}
-			e.ArrEnd()
+		e.FieldStart("image")
+		json.EncodeURI(e, s.Image)
+	}
+	{
+		e.FieldStart("dishes")
+		e.ArrStart()
+		for _, elem := range s.Dishes {
+			json.EncodeUUID(e, elem)
 		}
+		e.ArrEnd()
 	}
 }
 
-var jsonFieldsNameOfMenu = [4]string{
+var jsonFieldsNameOfMenu = [5]string{
 	0: "id",
-	1: "restaurant",
-	2: "image",
-	3: "dishes",
+	1: "name",
+	2: "restaurant",
+	3: "image",
+	4: "dishes",
 }
 
 // Decode decodes Menu from json.
@@ -325,23 +322,40 @@ func (s *Menu) Decode(d *jx.Decoder) error {
 	if s == nil {
 		return errors.New("invalid: unable to decode Menu to nil")
 	}
+	var requiredBitSet [1]uint8
 
 	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
 		switch string(k) {
 		case "id":
+			requiredBitSet[0] |= 1 << 0
 			if err := func() error {
-				s.ID.Reset()
-				if err := s.ID.Decode(d); err != nil {
+				v, err := json.DecodeUUID(d)
+				s.ID = v
+				if err != nil {
 					return err
 				}
 				return nil
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"id\"")
 			}
-		case "restaurant":
+		case "name":
+			requiredBitSet[0] |= 1 << 1
 			if err := func() error {
-				s.Restaurant.Reset()
-				if err := s.Restaurant.Decode(d); err != nil {
+				v, err := d.Str()
+				s.Name = string(v)
+				if err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"name\"")
+			}
+		case "restaurant":
+			requiredBitSet[0] |= 1 << 2
+			if err := func() error {
+				v, err := json.DecodeUUID(d)
+				s.Restaurant = v
+				if err != nil {
 					return err
 				}
 				return nil
@@ -349,9 +363,11 @@ func (s *Menu) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"restaurant\"")
 			}
 		case "image":
+			requiredBitSet[0] |= 1 << 3
 			if err := func() error {
-				s.Image.Reset()
-				if err := s.Image.Decode(d); err != nil {
+				v, err := json.DecodeURI(d)
+				s.Image = v
+				if err != nil {
 					return err
 				}
 				return nil
@@ -359,11 +375,14 @@ func (s *Menu) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"image\"")
 			}
 		case "dishes":
+			requiredBitSet[0] |= 1 << 4
 			if err := func() error {
-				s.Dishes = make([]Dish, 0)
+				s.Dishes = make([]uuid.UUID, 0)
 				if err := d.Arr(func(d *jx.Decoder) error {
-					var elem Dish
-					if err := elem.Decode(d); err != nil {
+					var elem uuid.UUID
+					v, err := json.DecodeUUID(d)
+					elem = v
+					if err != nil {
 						return err
 					}
 					s.Dishes = append(s.Dishes, elem)
@@ -382,6 +401,38 @@ func (s *Menu) Decode(d *jx.Decoder) error {
 	}); err != nil {
 		return errors.Wrap(err, "decode Menu")
 	}
+	// Validate required fields.
+	var failures []validate.FieldError
+	for i, mask := range [1]uint8{
+		0b00011111,
+	} {
+		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
+			// Mask only required fields and check equality to mask using XOR.
+			//
+			// If XOR result is not zero, result is not equal to expected, so some fields are missed.
+			// Bits of fields which would be set are actually bits of missed fields.
+			missed := bits.OnesCount8(result)
+			for bitN := 0; bitN < missed; bitN++ {
+				bitIdx := bits.TrailingZeros8(result)
+				fieldIdx := i*8 + bitIdx
+				var name string
+				if fieldIdx < len(jsonFieldsNameOfMenu) {
+					name = jsonFieldsNameOfMenu[fieldIdx]
+				} else {
+					name = strconv.Itoa(fieldIdx)
+				}
+				failures = append(failures, validate.FieldError{
+					Name:  name,
+					Error: validate.ErrFieldRequired,
+				})
+				// Reset bit.
+				result &^= 1 << bitIdx
+			}
+		}
+	}
+	if len(failures) > 0 {
+		return &validate.Error{Fields: failures}
+	}
 
 	return nil
 }
@@ -395,76 +446,6 @@ func (s *Menu) MarshalJSON() ([]byte, error) {
 
 // UnmarshalJSON implements stdjson.Unmarshaler.
 func (s *Menu) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
-// Encode encodes url.URL as json.
-func (o OptURI) Encode(e *jx.Encoder) {
-	if !o.Set {
-		return
-	}
-	json.EncodeURI(e, o.Value)
-}
-
-// Decode decodes url.URL from json.
-func (o *OptURI) Decode(d *jx.Decoder) error {
-	if o == nil {
-		return errors.New("invalid: unable to decode OptURI to nil")
-	}
-	o.Set = true
-	v, err := json.DecodeURI(d)
-	if err != nil {
-		return err
-	}
-	o.Value = v
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s OptURI) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *OptURI) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
-// Encode encodes uuid.UUID as json.
-func (o OptUUID) Encode(e *jx.Encoder) {
-	if !o.Set {
-		return
-	}
-	json.EncodeUUID(e, o.Value)
-}
-
-// Decode decodes uuid.UUID from json.
-func (o *OptUUID) Decode(d *jx.Decoder) error {
-	if o == nil {
-		return errors.New("invalid: unable to decode OptUUID to nil")
-	}
-	o.Set = true
-	v, err := json.DecodeUUID(d)
-	if err != nil {
-		return err
-	}
-	o.Value = v
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s OptUUID) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *OptUUID) UnmarshalJSON(data []byte) error {
 	d := jx.DecodeBytes(data)
 	return s.Decode(d)
 }
@@ -541,132 +522,6 @@ func (s *RetrieveDishByIDNotFound) MarshalJSON() ([]byte, error) {
 
 // UnmarshalJSON implements stdjson.Unmarshaler.
 func (s *RetrieveDishByIDNotFound) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
-// Encode encodes RetrieveDishesByMenuIdInternalServerError as json.
-func (s *RetrieveDishesByMenuIdInternalServerError) Encode(e *jx.Encoder) {
-	unwrapped := (*Error)(s)
-
-	unwrapped.Encode(e)
-}
-
-// Decode decodes RetrieveDishesByMenuIdInternalServerError from json.
-func (s *RetrieveDishesByMenuIdInternalServerError) Decode(d *jx.Decoder) error {
-	if s == nil {
-		return errors.New("invalid: unable to decode RetrieveDishesByMenuIdInternalServerError to nil")
-	}
-	var unwrapped Error
-	if err := func() error {
-		if err := unwrapped.Decode(d); err != nil {
-			return err
-		}
-		return nil
-	}(); err != nil {
-		return errors.Wrap(err, "alias")
-	}
-	*s = RetrieveDishesByMenuIdInternalServerError(unwrapped)
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s *RetrieveDishesByMenuIdInternalServerError) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *RetrieveDishesByMenuIdInternalServerError) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
-// Encode encodes RetrieveDishesByMenuIdNotFound as json.
-func (s *RetrieveDishesByMenuIdNotFound) Encode(e *jx.Encoder) {
-	unwrapped := (*Error)(s)
-
-	unwrapped.Encode(e)
-}
-
-// Decode decodes RetrieveDishesByMenuIdNotFound from json.
-func (s *RetrieveDishesByMenuIdNotFound) Decode(d *jx.Decoder) error {
-	if s == nil {
-		return errors.New("invalid: unable to decode RetrieveDishesByMenuIdNotFound to nil")
-	}
-	var unwrapped Error
-	if err := func() error {
-		if err := unwrapped.Decode(d); err != nil {
-			return err
-		}
-		return nil
-	}(); err != nil {
-		return errors.Wrap(err, "alias")
-	}
-	*s = RetrieveDishesByMenuIdNotFound(unwrapped)
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s *RetrieveDishesByMenuIdNotFound) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *RetrieveDishesByMenuIdNotFound) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
-// Encode encodes RetrieveDishesByMenuIdOKApplicationJSON as json.
-func (s RetrieveDishesByMenuIdOKApplicationJSON) Encode(e *jx.Encoder) {
-	unwrapped := []Dish(s)
-
-	e.ArrStart()
-	for _, elem := range unwrapped {
-		elem.Encode(e)
-	}
-	e.ArrEnd()
-}
-
-// Decode decodes RetrieveDishesByMenuIdOKApplicationJSON from json.
-func (s *RetrieveDishesByMenuIdOKApplicationJSON) Decode(d *jx.Decoder) error {
-	if s == nil {
-		return errors.New("invalid: unable to decode RetrieveDishesByMenuIdOKApplicationJSON to nil")
-	}
-	var unwrapped []Dish
-	if err := func() error {
-		unwrapped = make([]Dish, 0)
-		if err := d.Arr(func(d *jx.Decoder) error {
-			var elem Dish
-			if err := elem.Decode(d); err != nil {
-				return err
-			}
-			unwrapped = append(unwrapped, elem)
-			return nil
-		}); err != nil {
-			return err
-		}
-		return nil
-	}(); err != nil {
-		return errors.Wrap(err, "alias")
-	}
-	*s = RetrieveDishesByMenuIdOKApplicationJSON(unwrapped)
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s RetrieveDishesByMenuIdOKApplicationJSON) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *RetrieveDishesByMenuIdOKApplicationJSON) UnmarshalJSON(data []byte) error {
 	d := jx.DecodeBytes(data)
 	return s.Decode(d)
 }

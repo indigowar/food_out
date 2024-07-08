@@ -22,15 +22,6 @@ func (UnimplementedHandler) RetrieveDishByID(ctx context.Context, params Retriev
 	return r, ht.ErrNotImplemented
 }
 
-// RetrieveDishesByMenuId implements RetrieveDishesByMenuId operation.
-//
-// Retrieve dishes by its menu ID.
-//
-// GET /dish/menu/{id}
-func (UnimplementedHandler) RetrieveDishesByMenuId(ctx context.Context, params RetrieveDishesByMenuIdParams) (r RetrieveDishesByMenuIdRes, _ error) {
-	return r, ht.ErrNotImplemented
-}
-
 // RetrieveListOfRestaurants implements RetrieveListOfRestaurants operation.
 //
 // Retrieve list of IDs of restaurants.

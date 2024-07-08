@@ -88,145 +88,64 @@ func (*Error) retrieveListOfRestaurantsRes() {}
 
 // Ref: #/components/schemas/Menu
 type Menu struct {
-	ID         OptUUID `json:"id"`
-	Restaurant OptUUID `json:"restaurant"`
-	Image      OptURI  `json:"image"`
-	Dishes     []Dish  `json:"dishes"`
+	ID         uuid.UUID   `json:"id"`
+	Name       string      `json:"name"`
+	Restaurant uuid.UUID   `json:"restaurant"`
+	Image      url.URL     `json:"image"`
+	Dishes     []uuid.UUID `json:"dishes"`
 }
 
 // GetID returns the value of ID.
-func (s *Menu) GetID() OptUUID {
+func (s *Menu) GetID() uuid.UUID {
 	return s.ID
 }
 
+// GetName returns the value of Name.
+func (s *Menu) GetName() string {
+	return s.Name
+}
+
 // GetRestaurant returns the value of Restaurant.
-func (s *Menu) GetRestaurant() OptUUID {
+func (s *Menu) GetRestaurant() uuid.UUID {
 	return s.Restaurant
 }
 
 // GetImage returns the value of Image.
-func (s *Menu) GetImage() OptURI {
+func (s *Menu) GetImage() url.URL {
 	return s.Image
 }
 
 // GetDishes returns the value of Dishes.
-func (s *Menu) GetDishes() []Dish {
+func (s *Menu) GetDishes() []uuid.UUID {
 	return s.Dishes
 }
 
 // SetID sets the value of ID.
-func (s *Menu) SetID(val OptUUID) {
+func (s *Menu) SetID(val uuid.UUID) {
 	s.ID = val
 }
 
+// SetName sets the value of Name.
+func (s *Menu) SetName(val string) {
+	s.Name = val
+}
+
 // SetRestaurant sets the value of Restaurant.
-func (s *Menu) SetRestaurant(val OptUUID) {
+func (s *Menu) SetRestaurant(val uuid.UUID) {
 	s.Restaurant = val
 }
 
 // SetImage sets the value of Image.
-func (s *Menu) SetImage(val OptURI) {
+func (s *Menu) SetImage(val url.URL) {
 	s.Image = val
 }
 
 // SetDishes sets the value of Dishes.
-func (s *Menu) SetDishes(val []Dish) {
+func (s *Menu) SetDishes(val []uuid.UUID) {
 	s.Dishes = val
 }
 
 func (*Menu) retrieveMenuByIDRes() {}
-
-// NewOptURI returns new OptURI with value set to v.
-func NewOptURI(v url.URL) OptURI {
-	return OptURI{
-		Value: v,
-		Set:   true,
-	}
-}
-
-// OptURI is optional url.URL.
-type OptURI struct {
-	Value url.URL
-	Set   bool
-}
-
-// IsSet returns true if OptURI was set.
-func (o OptURI) IsSet() bool { return o.Set }
-
-// Reset unsets value.
-func (o *OptURI) Reset() {
-	var v url.URL
-	o.Value = v
-	o.Set = false
-}
-
-// SetTo sets value to v.
-func (o *OptURI) SetTo(v url.URL) {
-	o.Set = true
-	o.Value = v
-}
-
-// Get returns value and boolean that denotes whether value was set.
-func (o OptURI) Get() (v url.URL, ok bool) {
-	if !o.Set {
-		return v, false
-	}
-	return o.Value, true
-}
-
-// Or returns value if set, or given parameter if does not.
-func (o OptURI) Or(d url.URL) url.URL {
-	if v, ok := o.Get(); ok {
-		return v
-	}
-	return d
-}
-
-// NewOptUUID returns new OptUUID with value set to v.
-func NewOptUUID(v uuid.UUID) OptUUID {
-	return OptUUID{
-		Value: v,
-		Set:   true,
-	}
-}
-
-// OptUUID is optional uuid.UUID.
-type OptUUID struct {
-	Value uuid.UUID
-	Set   bool
-}
-
-// IsSet returns true if OptUUID was set.
-func (o OptUUID) IsSet() bool { return o.Set }
-
-// Reset unsets value.
-func (o *OptUUID) Reset() {
-	var v uuid.UUID
-	o.Value = v
-	o.Set = false
-}
-
-// SetTo sets value to v.
-func (o *OptUUID) SetTo(v uuid.UUID) {
-	o.Set = true
-	o.Value = v
-}
-
-// Get returns value and boolean that denotes whether value was set.
-func (o OptUUID) Get() (v uuid.UUID, ok bool) {
-	if !o.Set {
-		return v, false
-	}
-	return o.Value, true
-}
-
-// Or returns value if set, or given parameter if does not.
-func (o OptUUID) Or(d uuid.UUID) uuid.UUID {
-	if v, ok := o.Get(); ok {
-		return v
-	}
-	return d
-}
 
 type RetrieveDishByIDInternalServerError Error
 
@@ -235,18 +154,6 @@ func (*RetrieveDishByIDInternalServerError) retrieveDishByIDRes() {}
 type RetrieveDishByIDNotFound Error
 
 func (*RetrieveDishByIDNotFound) retrieveDishByIDRes() {}
-
-type RetrieveDishesByMenuIdInternalServerError Error
-
-func (*RetrieveDishesByMenuIdInternalServerError) retrieveDishesByMenuIdRes() {}
-
-type RetrieveDishesByMenuIdNotFound Error
-
-func (*RetrieveDishesByMenuIdNotFound) retrieveDishesByMenuIdRes() {}
-
-type RetrieveDishesByMenuIdOKApplicationJSON []Dish
-
-func (*RetrieveDishesByMenuIdOKApplicationJSON) retrieveDishesByMenuIdRes() {}
 
 type RetrieveListOfRestaurantsOKApplicationJSON []uuid.UUID
 
