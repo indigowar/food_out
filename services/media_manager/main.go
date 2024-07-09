@@ -10,15 +10,13 @@ import (
 	"github.com/minio/minio-go/v7/pkg/credentials"
 )
 
-var bucketName = os.Getenv("MINIO_BUCKET_NAME")
-
 func main() {
 	client, err := connect()
 	if err != nil {
 		log.Fatalf("Failed to connect to MinIO: %s\n", err)
 	}
 
-	s := &storage{c: client, bucketName: bucketName}
+	s := &storage{c: client, bucketName: os.Getenv("MINIO_BUCKET_NAME")}
 
 	http.HandleFunc("POST /", uploadImage(s))
 	http.HandleFunc("GET /{name}", receiveImage(s))
