@@ -7,7 +7,6 @@ import (
 	"math/rand"
 	"net/http"
 	"os"
-	"path/filepath"
 )
 
 func uploadImage(s *storage) http.HandlerFunc {
@@ -30,9 +29,9 @@ func uploadImage(s *storage) http.HandlerFunc {
 		}
 
 		name := generateObjectName()
-		fileType := filepath.Ext(header.Filename)
+		contentType := r.Header.Get("Content-Type")
 
-		if err := s.Save(r.Context(), name, fileType, header.Size, data); err != nil {
+		if err := s.Save(r.Context(), name, contentType, header.Size, data); err != nil {
 			http.Error(w, "Failed to save the file", http.StatusInternalServerError)
 			log.Printf("Failed to save the file: %s\n", err)
 		}
@@ -48,13 +47,13 @@ func receiveImage(s *storage) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		name := r.PathValue("name")
 
-		data, ext, err := s.Load(r.Context(), name)
+		data, contentType, err := s.Load(r.Context(), name)
 		if err != nil {
 			http.Error(w, fmt.Sprintf("File with name %s is not found", name), http.StatusNotFound)
 			log.Printf("File is not found: %s\n", err)
 		}
 
-		w.Header().Set("Content-Type", fmt.Sprintf("image/%s", ext))
+		w.Header().Set("Content-Type", contentType)
 		w.WriteHeader(http.StatusOK)
 		w.Write(data)
 	}

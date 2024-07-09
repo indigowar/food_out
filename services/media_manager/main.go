@@ -18,7 +18,7 @@ func main() {
 		log.Fatalf("Failed to connect to MinIO: %s\n", err)
 	}
 
-	s := &storage{c: client}
+	s := &storage{c: client, bucketName: bucketName}
 
 	http.HandleFunc("POST /", uploadImage(s))
 	http.HandleFunc("GET /{name}", receiveImage(s))
