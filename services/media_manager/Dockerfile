@@ -1,4 +1,4 @@
-FROM golang:1.22.3 AS build
+FROM golang:1.22.4 AS build
 
 WORKDIR /app
 
@@ -9,14 +9,14 @@ RUN go mod download
 
 COPY . .
 
-RUN CGO_ENABLED=0 GOOS=linux go build -o menu .
+RUN CGO_ENABLED=0 GOOS=linux go build -o media_manager .
 
 FROM alpine:latest
 
 WORKDIR /app
 
-COPY --from=build /app/menu /bin/menu
+COPY --from=build /app/media_manager /bin/media_manager
 
 EXPOSE 80
 
-CMD [ "/bin/menu" ]
+CMD [ "/bin/media_manager" ]

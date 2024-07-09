@@ -157,6 +157,37 @@ services:
     volumes:
       - ../services/menu/ports/storage/postgres/migrations:/migrations:ro
 
+  media_manager:
+    container_name: media_manager
+    build:
+      context: ../services/media_manager
+      dockerfile: ./Dockerfile
+    depends_on:
+      - minio
+    networks:
+      - traefik-proxy-network
+      - media-manager-network
+    environment:
+      MINIO_ENDPOINT: minio:9000
+      MINIO_ACCESS_KEY_ID: minioadmin
+      MINIO_SECRET_ACCESS_KEY: minioadmin
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.media_manager.rule=Host(`media_manager.localhost`)"
+      - "traefik.http.services.media_manager.loadbalancer.server.port=80"
+
+  minio:
+    container_name: minio
+    image: quay.io/minio/minio
+    command: server /data --console-address ":9001"
+    networks:
+      - media-manager-network
+    environment:
+      - MINIO_ROOT_USER=minioadmin
+      - MINIO_ROOT_PASSWORD=minioadmin
+    volumes:
+      - ../.volumes/minio:/data
+
   zookeeper-1:
     image: confluentinc/cp-zookeeper:7.4.4
     networks:
@@ -191,3 +222,5 @@ networks:
     name: menu-network
   message-queue-network:
     name: message-queue-network
+  media-manager-network:
+    name: media-manager-network
