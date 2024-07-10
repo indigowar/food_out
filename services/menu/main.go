@@ -68,7 +68,7 @@ func run(logger *slog.Logger, rest *rest.Delivery) {
 	go func() {
 		err := rest.Run(ctx)
 		if err != nil {
-			// log the error
+			logger.Error("REST Delivery failed", "Err", err)
 			cancel()
 		}
 		wg.Done()
