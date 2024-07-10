@@ -74,3 +74,7 @@ VALUES ($1);
 SELECT *
 FROM restaurants
 WHERE id = $1;
+
+-- name: GetAllRestaurants :many
+SELECT *
+FROM restaurants;

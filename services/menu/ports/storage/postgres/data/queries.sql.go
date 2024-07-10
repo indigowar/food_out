@@ -50,6 +50,31 @@ func (q *Queries) DeleteMenuDishByMenu(ctx context.Context, menu pgtype.UUID) er
 	return err
 }
 
+const getAllRestaurants = `-- name: GetAllRestaurants :many
+SELECT id
+FROM restaurants
+`
+
+func (q *Queries) GetAllRestaurants(ctx context.Context) ([]pgtype.UUID, error) {
+	rows, err := q.db.Query(ctx, getAllRestaurants)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []pgtype.UUID
+	for rows.Next() {
+		var id pgtype.UUID
+		if err := rows.Scan(&id); err != nil {
+			return nil, err
+		}
+		items = append(items, id)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getRestaurant = `-- name: GetRestaurant :one
 SELECT id
 FROM restaurants
