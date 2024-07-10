@@ -12,11 +12,11 @@ import (
 )
 
 type handler struct {
-	dishById         queries.GetDishByIDQuery
-	menuById         queries.GetMenuByIDQuery
-	menuByRestaurant queries.GetRestaurantsMenusQuery
-	restaurantList   queries.GetRestaurantsQuery
-	dishValidation   queries.ValidateDishOwnershipQuery
+	dishById         *queries.GetDishByIDQuery
+	menuById         *queries.GetMenuByIDQuery
+	menuByRestaurant *queries.GetRestaurantsMenusQuery
+	restaurantList   *queries.GetRestaurantsQuery
+	dishValidation   *queries.ValidateDishOwnershipQuery
 }
 
 var _ api.Handler = &handler{}

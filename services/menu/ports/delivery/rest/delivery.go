@@ -47,11 +47,11 @@ func (d *Delivery) Run(ctx context.Context) error {
 
 func New(
 	logger *slog.Logger,
-	dishById queries.GetDishByIDQuery,
-	menuById queries.GetMenuByIDQuery,
-	menuByRestaurant queries.GetRestaurantsMenusQuery,
-	restaurantList queries.GetRestaurantsQuery,
-	dishValidation queries.ValidateDishOwnershipQuery,
+	dishById *queries.GetDishByIDQuery,
+	menuById *queries.GetMenuByIDQuery,
+	menuByRestaurant *queries.GetRestaurantsMenusQuery,
+	restaurantList *queries.GetRestaurantsQuery,
+	dishValidation *queries.ValidateDishOwnershipQuery,
 ) (*Delivery, error) {
 	api, err := api.NewServer(&handler{
 		dishById:         dishById,
