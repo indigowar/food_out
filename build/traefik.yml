@@ -1,0 +1,27 @@
+services:
+  traefik:
+    container_name: traefik
+    image: traefik:v2.11
+    restart: unless-stopped
+    privileged: true
+    command:
+      - "--api.insecure=true"
+      - "--providers.docker"
+      - "--providers.docker.exposedByDefault=false"
+      - "--providers.docker.network=proxy-network"
+      - "--entrypoints.web.address=:80"
+    ports:
+      - 80:80
+    networks:
+      - proxy-network
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.traefik.rule=Host(`traefik.localhost`)"
+      - "traefik.http.routers.entrypoints=web"
+      - "traefik.http.services.traefik.loadbalancer.server.port=8080"
+
+networks:
+  proxy-network:
+    name: proxy-network

@@ -1,0 +1,60 @@
+services:
+  menu:
+    container_name: menu
+    build:
+      context: ../services/menu
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    depends_on:
+      - menu_db
+    networks:
+      - menu-network
+      - proxy-network
+      - kafka-network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.menu.rule=Host(`menu.localhost`)"
+      - "traefik.http.services.menu.loadbalancer.server.port=80"
+    environment:
+      POSTGRES_USER: ${MENU_POSTGRES_USER}
+      POSTGRES_PASSWORD: ${MENU_POSTGRES_PASSWORD}
+      POSTGRES_DB: ${MENU_POSTGRES_DB}
+      POSTGRES_HOST: menu_db
+      POSTGRES_PORT: 5432
+
+      SECURITY_KEY: ${AUTH_SECURITY_KEY}
+
+      KAFKA_HOST: kafka
+      KAFKA_PORT: 9092
+
+  menu_db:
+    container_name: menu_db
+    image: postgres:15-alpine
+    restart: unless-stopped
+    networks:
+      - menu-network
+    volumes:
+      - menu_db:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: ${MENU_POSTGRES_USER}
+      POSTGRES_PASSWORD: ${MENU_POSTGRES_PASSWORD}
+      POSTGRES_DB: ${MENU_POSTGRES_DB}
+
+  menu_migrations:
+    container_name: menu_migrations
+    image: ghcr.io/kukymbr/goose-docker:3.21.1
+    depends_on:
+      - menu_db
+    networks:
+      - menu-network
+    environment:
+      GOOSE_DRIVER: postgres
+      GOOSE_DBSTRING: ${MENU_MIGRATION_GOOSE_DBSTRING}
+    volumes:
+      - ../services/menu/ports/storage/postgres/migrations:/migrations:ro
+
+networks:
+  menu-network:
+
+volumes:
+  menu_db:
