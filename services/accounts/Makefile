@@ -1,5 +1,5 @@
 gen:
 	@go generate ./...
 
-test:
+test: gen
 	@go test ./...

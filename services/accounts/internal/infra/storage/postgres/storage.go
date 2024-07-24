@@ -8,12 +8,12 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 
 	"github.com/indigowar/food_out/services/accounts/internal/domain"
-	"github.com/indigowar/food_out/services/accounts/internal/infra/storage/postgres/queries"
+	"github.com/indigowar/food_out/services/accounts/internal/infra/storage/postgres/gen"
 	"github.com/indigowar/food_out/services/accounts/internal/service"
 )
 
 type Storage struct {
-	queries *queries.Queries
+	queries *gen.Queries
 }
 
 var _ service.Storage = &Storage{}
@@ -76,7 +76,7 @@ func (s *Storage) Remove(ctx context.Context, id uuid.UUID) error {
 
 // Update implements service.Storage.
 func (s *Storage) Update(ctx context.Context, account *domain.Account) error {
-	params := queries.UpdateAccountParams{
+	params := gen.UpdateAccountParams{
 		Phone:          account.Phone(),
 		Password:       account.Password(),
 		Name:           pgtype.Text{},
@@ -110,6 +110,6 @@ func NewStorage(conn *pgx.Conn) *Storage {
 	conn.Exec(context.Background(), migration)
 
 	return &Storage{
-		queries: queries.New(conn),
+		queries: gen.New(conn),
 	}
 }

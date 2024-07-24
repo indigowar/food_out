@@ -6,14 +6,14 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 
 	"github.com/indigowar/food_out/services/accounts/internal/domain"
-	"github.com/indigowar/food_out/services/accounts/internal/infra/storage/postgres/queries"
+	"github.com/indigowar/food_out/services/accounts/internal/infra/storage/postgres/gen"
 )
 
 const (
 // todo: add pgx errors codes
 )
 
-func toModel(a queries.Account) domain.Account {
+func toModel(a gen.Account) domain.Account {
 	var name *string = nil
 	if a.Name.Valid {
 		name = &a.Name.String
@@ -25,8 +25,8 @@ func toModel(a queries.Account) domain.Account {
 	return domain.NewAccountRaw(a.ID.Bytes, a.Phone, a.Password, name, url)
 }
 
-func createInsertParams(account *domain.Account) queries.InsertAccountParams {
-	params := queries.InsertAccountParams{
+func createInsertParams(account *domain.Account) gen.InsertAccountParams {
+	params := gen.InsertAccountParams{
 		ID:             pgtype.UUID{Bytes: account.ID(), Valid: true},
 		Phone:          account.Phone(),
 		Password:       account.Password(),

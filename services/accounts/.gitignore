@@ -1,0 +1,4 @@
+#*_gen.go
+#*.pb.go
+#*_moq_test.go
+gen/

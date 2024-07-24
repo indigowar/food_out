@@ -8,6 +8,7 @@ require (
 	github.com/golang-jwt/jwt/v5 v5.2.1
 	github.com/google/uuid v1.6.0
 	github.com/jackc/pgx/v5 v5.5.5
+	github.com/matryer/moq v0.3.4
 	github.com/ogen-go/ogen v1.0.0
 	github.com/segmentio/kafka-go v0.4.47
 	go.opentelemetry.io/otel v1.25.0
@@ -20,6 +21,8 @@ require (
 require (
 	github.com/klauspost/compress v1.17.6 // indirect
 	github.com/pierrec/lz4/v4 v4.1.15 // indirect
+	golang.org/x/mod v0.17.0 // indirect
+	golang.org/x/tools v0.20.0 // indirect
 )
 
 require (
@@ -38,7 +41,7 @@ require (
 	go.uber.org/zap v1.27.0 // indirect
 	golang.org/x/crypto v0.23.0
 	golang.org/x/exp v0.0.0-20240409090435-93d18d7e34b8 // indirect
-	golang.org/x/net v0.22.0 // indirect
+	golang.org/x/net v0.24.0 // indirect
 	golang.org/x/sync v0.7.0 // indirect
 	golang.org/x/sys v0.20.0 // indirect
 	golang.org/x/text v0.15.0 // indirect
