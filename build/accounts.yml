@@ -3,7 +3,7 @@ services:
     container_name: accounts
     build:
       context: ../services/accounts
-      dockerfile: ./build/Dockerfile
+      dockerfile: ./Dockerfile
     restart: unless-stopped
     depends_on:
       - accounts_database
