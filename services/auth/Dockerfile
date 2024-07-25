@@ -1,24 +1,15 @@
-FROM golang:1.22.2 AS build
-
+FROM golang:1.22-alpine as build
 WORKDIR /app
-
-COPY go.mod .
-COPY go.sum .
-
+COPY go.mod go.sum ./
 RUN go mod download
 
 COPY . .
 
+RUN go generate ./...
 RUN CGO_ENABLED=0 GOOS=linux go build -o auth ./cmd/auth
 
-
 FROM scratch
-
 WORKDIR /
-
 COPY --from=build /app/auth /bin/auth
-
 EXPOSE 80
-
 CMD [ "/bin/auth" ]
-

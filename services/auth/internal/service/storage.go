@@ -5,10 +5,11 @@ import (
 	"errors"
 
 	"github.com/google/uuid"
+
 	"github.com/indigowar/food_out/services/auth/internal/domain"
 )
 
-//go:generate moq -out storage_moq.go . Storage
+//go:generate go run github.com/matryer/moq -out storage_moq_test.go . Storage
 
 var (
 	ErrStorageNotFound      = errors.New("session is not found in the storage")

@@ -3,7 +3,7 @@ services:
     container_name: auth
     build:
       context: ../services/auth
-      dockerfile: ./build/Dockerfile
+      dockerfile: ./Dockerfile
     restart: unless-stopped
     depends_on:
       - auth_storage

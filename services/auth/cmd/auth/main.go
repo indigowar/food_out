@@ -4,88 +4,83 @@ import (
 	"context"
 	"log"
 	"log/slog"
-	"net/http"
 	"os"
 	"os/signal"
+	"strconv"
+	"syscall"
 	"time"
 
 	"github.com/indigowar/food_out/services/auth/internal/infrastructure/credentials_validator/client"
 	"github.com/indigowar/food_out/services/auth/internal/infrastructure/delivery/rest"
-	"github.com/indigowar/food_out/services/auth/internal/infrastructure/delivery/rest/api"
 	"github.com/indigowar/food_out/services/auth/internal/infrastructure/storage/redis"
 	"github.com/indigowar/food_out/services/auth/internal/service"
 )
 
 func main() {
+	secret, accessDuration, sessionDuration := parseAuthSettings()
+
+	redisStorage := connectToRedis()
+	credentialsValidator := connectToAccountService()
+
 	logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
 
-	cfg, err := Load()
+	service := service.NewService(logger, redisStorage, credentialsValidator, sessionDuration)
+
+	delivery, err := rest.New(logger, service, ":80", accessDuration, secret)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	redisClient, err := redis.Connect(
-		cfg.Redis.Host,
-		cfg.Redis.Port,
-		cfg.Redis.Password,
-		cfg.Redis.DB,
-	)
-
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	credentialsValidator, err := client.NewCredentialsValidator(cfg.Accounts.Url)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	sessionStorage := redis.NewStorage(redisClient)
-
-	service := service.NewService(
-		logger,
-		sessionStorage,
-		credentialsValidator,
-		cfg.Auth.SessionDuration,
-	)
-
-	wrapper := rest.NewWrapper(
-		service,
-		rest.NewJwtTokenGenerator(
-			cfg.Auth.Key,
-			cfg.Auth.AccessTokenDuration,
-		),
-	)
-
-	securityHandler := rest.NewRefreshSecurityHandler(service)
-
-	api, err := api.NewServer(wrapper, securityHandler)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	server := &http.Server{
-		Addr:    ":80",
-		Handler: api,
-	}
-
-	go func() {
-		if err := server.ListenAndServe(); err != nil || err != http.ErrServerClosed {
-			log.Fatal(err)
-		}
-	}()
-
-	quit := make(chan os.Signal, 1)
-	signal.Notify(quit, os.Interrupt)
-
-	<-quit
-
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer cancel()
 
-	if err := server.Shutdown(ctx); err != nil {
+	if err := delivery.Run(ctx); err != nil {
 		log.Fatal(err)
 	}
+}
 
-	log.Println("Service is stopped")
+func connectToRedis() *redis.Storage {
+	port, err := strconv.Atoi(os.Getenv("REDIS_PORT"))
+	if err != nil {
+		log.Fatalf("Invalid value for REDIS_PORT env: %w", err)
+	}
+
+	db, err := strconv.Atoi(os.Getenv("REDIS_DB"))
+	if err != nil {
+		log.Fatalf("Invalid value for REDIS_DB env: %w", err)
+	}
+
+	client, err := redis.Connect(os.Getenv("REDIS_HOST"), port, os.Getenv("REDIS_PASSWORD"), db)
+	if err != nil {
+		log.Fatalf("Invalid value for REDIS_DB env: %w", err)
+	}
+
+	return redis.NewStorage(client)
+}
+
+func connectToAccountService() *client.CredentialsValidator {
+	url := os.Getenv("ACCOUNTS_URL")
+
+	cv, err := client.NewCredentialsValidator(url)
+	if err != nil {
+		log.Fatalf("Failed to connect to Accouts service %s", err)
+	}
+
+	return cv
+}
+
+func parseAuthSettings() ([]byte, time.Duration, time.Duration) {
+	key := []byte(os.Getenv("AUTH_KEY"))
+
+	accessDuration, err := time.ParseDuration(os.Getenv("AUTH_ACCESS_TOKEN_DURATION"))
+	if err != nil {
+		log.Fatalf("Failed to parse AUTH_ACCESS_TOKEN_DURATION: %s", err)
+	}
+
+	sessionDuration, err := time.ParseDuration(os.Getenv("AUTH_SESSION_DURATION"))
+	if err != nil {
+		log.Fatalf("Failed to parse AUTH_SESSION_DURATION: %s", err)
+	}
+
+	return key, accessDuration, sessionDuration
 }

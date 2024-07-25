@@ -7,7 +7,7 @@ import (
 	"github.com/google/uuid"
 )
 
-//go:generate moq -out credentials_validator_moq.go . CredentialsValidator
+//go:generate go run github.com/matryer/moq -out credentials_validator_moq_test.go . CredentialsValidator
 
 var (
 	ErrCredentialsValidatorNotFound = errors.New("credentials validator error: account not found")
