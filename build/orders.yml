@@ -1,0 +1,46 @@
+services:
+  orders:
+    container_name: orders
+    restart: unless-stopped
+    build:
+      context: ../services/orders
+    networks:
+      - order-network
+      - proxy-network
+      - kafka-network
+    depends_on:
+      - orders_db
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.orders.rule=Host(`orders.localhost`)"
+      - "traefik.http.services.orders.loadbalancer.server.port=80"
+    environment:
+      SECURITY_KEY: ${AUTH_SECURITY_KEY}
+
+      POSTGRES_HOST: orders_db
+      POSTGRES_PORT: 5432
+      POSTGRES_USER: ${ORDERS_POSTGRES_USER}
+      POSTGRES_PASSWORD: ${ORDERS_POSTGRES_PASSWORD}
+      POSTGRES_DB: ${ORDERS_POSTGRES_DB}
+
+      KAFKA_HOST: kafka
+      KAFKA_PORT: 9092
+
+  orders_db:
+    container_name: orders_db
+    image: postgres:15-alpine
+    restart: unless-stopped
+    networks:
+      - order-network
+    volumes:
+      - orders_db:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: ${ORDERS_POSTGRES_USER}
+      POSTGRES_PASSWORD: ${ORDERS_POSTGRES_PASSWORD}
+      POSTGRES_DB: ${ORDERS_POSTGRES_DB}
+
+networks:
+  order-network:
+
+volumes:
+  orders_db:

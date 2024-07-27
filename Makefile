@@ -7,6 +7,7 @@ up:
 		-f build/kafka.yml \
 		-f build/media_manager.yml \
 		-f build/menu.yml \
+		-f build/orders.yml \
 		-f build/traefik.yml \
 	up --build --remove-orphans
 

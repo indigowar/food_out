@@ -1,0 +1,64 @@
+syntax = "proto3";
+
+package kafka;
+option go_package="github.com/indigowar/food_out/services/orders/internal/ports/eventconsumers/kafka";
+
+import "google/protobuf/timestamp.proto";
+
+message Product {
+    string id = 1;
+    string restaurant = 2;
+    string name = 3;
+    string picture = 4;
+    float price = 5;
+    string description = 6;
+
+    repeated string categories = 7;
+}
+
+message OrderCreationRequest {
+    string customer = 1;
+    string customer_address = 2;
+    string restaurant = 3;
+    repeated Product products = 4;
+    google.protobuf.Timestamp timestamp = 5;
+}
+
+message RestaurantAcceptedOrder {
+    string order = 1;
+    string manager = 2;
+    google.protobuf.Timestamp timestamp = 3;
+}
+
+message CourierAcceptedOffer {
+    string order = 1;
+    string courier = 2;
+    google.protobuf.Timestamp timestamp = 3;
+}
+
+message OrderHasBeenPayed {
+    string order = 1;
+    string transaction = 2;
+    google.protobuf.Timestamp timestamp = 3;
+}
+
+message OrderIsCooking {
+    string order = 1;
+    google.protobuf.Timestamp timestamp = 2;
+}
+
+message OrderDeliveryStarted {
+    string order = 1;
+    google.protobuf.Timestamp timestamp = 2;
+}
+
+message OrderIsCompleted {
+    string order = 1;
+    google.protobuf.Timestamp timestamp = 2;
+}
+
+message OrderIsCancelled {
+    string order = 1;
+    string canceller = 2;
+    google.protobuf.Timestamp timestamp = 3;
+}
