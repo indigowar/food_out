@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/indigowar/food_out/services/auth/internal/infrastructure/delivery/rest/api"
 	"github.com/indigowar/food_out/services/auth/internal/service"
 )
 
@@ -50,5 +51,27 @@ func New(
 	accessTokenDuration time.Duration,
 	authSecret []byte,
 ) (Delivery, error) {
-	panic("not implemented")
+	wrapper := &Wrapper{
+		sv: service,
+		tk: NewJwtTokenGenerator(authSecret, accessTokenDuration),
+	}
+
+	refreshSecurityHandler := &RefreshSecurityHandler{
+		sv: service,
+	}
+
+	api, err := api.NewServer(wrapper, refreshSecurityHandler)
+	if err != nil {
+		return Delivery{}, fmt.Errorf("rest.Delivery failed to create api: %w", err)
+	}
+
+	server := &http.Server{
+		Addr:    addr,
+		Handler: api,
+	}
+
+	return Delivery{
+		logger: logger,
+		server: server,
+	}, nil
 }
