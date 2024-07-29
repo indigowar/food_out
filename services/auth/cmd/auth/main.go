@@ -42,17 +42,17 @@ func main() {
 func connectToRedis() *redis.Storage {
 	port, err := strconv.Atoi(os.Getenv("REDIS_PORT"))
 	if err != nil {
-		log.Fatalf("Invalid value for REDIS_PORT env: %w", err)
+		log.Fatalf("Invalid value for REDIS_PORT env: %s", err)
 	}
 
 	db, err := strconv.Atoi(os.Getenv("REDIS_DB"))
 	if err != nil {
-		log.Fatalf("Invalid value for REDIS_DB env: %w", err)
+		log.Fatalf("Invalid value for REDIS_DB env: %s", err)
 	}
 
 	client, err := redis.Connect(os.Getenv("REDIS_HOST"), port, os.Getenv("REDIS_PASSWORD"), db)
 	if err != nil {
-		log.Fatalf("Invalid value for REDIS_DB env: %w", err)
+		log.Fatalf("Invalid value for REDIS_DB env: %s", err)
 	}
 
 	return redis.NewStorage(client)
