@@ -1,4 +1,5 @@
-use chrono::DateTime;
+use chrono::{DateTime, Local};
+use uuid::Uuid;
 
 use super::order_storage::{GetError, OrderStorage, UpdateError};
 use crate::domain::Order;
@@ -20,7 +21,7 @@ impl Command {
     ) -> Result<(), Error> {
         let mut order = self.get(id).await?;
         match order.mark_taken(courier, taken_at) {
-            Err(_) => Err(Error::AlreadyAccepted),
+            Err(_) => Err(Error::AlreadyTaken),
             Ok(_) => self.save(&order).await,
         }
     }
