@@ -3,8 +3,10 @@ use uuid::Uuid;
 
 mod commands;
 mod domain;
+mod storage;
 
-fn main() {
+#[tokio::main]
+async fn main() {
     let order = domain::Order::create(
         Uuid::new_v4(),
         "address".to_string(),
