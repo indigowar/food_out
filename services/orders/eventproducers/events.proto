@@ -1,0 +1,49 @@
+syntax = "proto3";
+
+package events;
+option go_package = "github.com/indigowar/food_out/services/orders/eventproducers/events";
+
+import "google/protobuf/timestamp.proto";
+
+message Product {
+  string id = 1;
+  string restaurant = 2;
+  string name = 3;
+  string picture = 4;
+  float price = 5;
+  string description = 6;
+  repeated string categories = 7;
+}
+
+message OrderEnded {
+  message Acceptance {
+    string manager = 1;
+    google.protobuf.Timestamp accepted_at = 2;
+  }
+
+  message Payment {
+    string transaction = 1;
+    google.protobuf.Timestamp payed_at = 2;
+  }
+
+  message Cancellation {
+    string canceller = 1;
+    google.protobuf.Timestamp cancelled_at = 2;
+  }
+
+  string id = 1;
+  string customer_id = 2;
+  string customer_address = 3;
+  google.protobuf.Timestamp created_at = 4;
+  string restaurant = 5;
+
+  repeated Product products = 6;
+
+  optional Acceptance acceptance = 7;
+  optional Payment payment = 8;
+  optional Cancellation cancellation = 9;
+
+  optional google.protobuf.Timestamp cooking_started_at = 10;
+  optional google.protobuf.Timestamp delivery_started_at = 11;
+  optional google.protobuf.Timestamp delivery_completed_at = 12;
+}

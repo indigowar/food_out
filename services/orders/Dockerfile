@@ -1,27 +1,22 @@
-FROM rust:1.80-alpine AS builder
+FROM golang:1.22.5 AS build
 
 WORKDIR /app
 
-FROM rust:latest AS builder
+COPY go.mod .
+COPY go.sum .
 
-WORKDIR /app
-
-RUN cargo install sqlx-cli
-
-# Download dependencies 
-COPY Cargo.toml Cargo.lock ./
-RUN mkdir src
-RUN echo "fn main() {}" > src/main.rs
-RUN cargo build --release
-RUN rm -r src
+RUN go mod download
 
 COPY . .
-RUN cargo build --release
 
-FROM scratch
+RUN CGO_ENABLED=0 GOOS=linux go build -o orders .
+
+FROM alpine:latest
+
 WORKDIR /app
-COPY --from=builder /app/target/release/orders /app/orders
-COPY --from=builder /app/src/storage/migrations /app/migrations
-COPY --from=builder /usr/local/cargo/bin/sqlx /app/sqlx
+
+COPY --from=build /app/orders /bin/orders
+
 EXPOSE 80
-ENTRYPOINT ["/app/sqlx-cli run --source /app/migrations; /app/orders"]
+
+CMD [ "/bin/orders" ]
