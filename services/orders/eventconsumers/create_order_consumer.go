@@ -39,8 +39,8 @@ func NewCreateOrderConsumer(
 
 	return newConsumer(
 		id,
-		createOrderValidator(),
-		createOrderUnpacker(),
+		createOrderUnpacker,
+		createOrderValidator,
 		createOrderExecutor(command),
 		logger,
 		brokers,
@@ -51,51 +51,47 @@ func NewCreateOrderConsumer(
 }
 
 // createOrderValidator validates CreateOrder using [[validator]] interface
-func createOrderValidator() validator[*events.CreateOrderRequest, createOrderData] {
-	return func(request *events.CreateOrderRequest) (createOrderData, error) {
-		customer, err := uuid.Parse(request.Customer)
-		if err != nil {
-			return createOrderData{}, errors.New("customer: is invalid")
-		}
-
-		restaurant, err := uuid.Parse(request.Restaurant)
-		if err != nil {
-			return createOrderData{}, errors.New("restaurant: is invalid")
-		}
-
-		products := make([]models.Product, len(request.Products))
-
-		for i, v := range request.Products {
-			p, err := productToModel(v)
-			if err != nil {
-				return createOrderData{}, fmt.Errorf("products: %w", err)
-			}
-			products[i] = p
-		}
-
-		if request.Timestamp.AsTime().After(time.Now()) {
-			return createOrderData{}, errors.New("createdAt: timestamp is invalid")
-		}
-
-		return createOrderData{
-			Customer:        customer,
-			CustomerAddress: request.CustomerAddress,
-			Restaurant:      restaurant,
-			Products:        products,
-			CreatedAt:       request.Timestamp.AsTime(),
-		}, nil
+func createOrderValidator(request *events.CreateOrderRequest) (createOrderData, error) {
+	customer, err := uuid.Parse(request.Customer)
+	if err != nil {
+		return createOrderData{}, errors.New("customer: is invalid")
 	}
+
+	restaurant, err := uuid.Parse(request.Restaurant)
+	if err != nil {
+		return createOrderData{}, errors.New("restaurant: is invalid")
+	}
+
+	products := make([]models.Product, len(request.Products))
+
+	for i, v := range request.Products {
+		p, err := productToModel(v)
+		if err != nil {
+			return createOrderData{}, fmt.Errorf("products: %w", err)
+		}
+		products[i] = p
+	}
+
+	if request.Timestamp.AsTime().After(time.Now()) {
+		return createOrderData{}, errors.New("createdAt: timestamp is invalid")
+	}
+
+	return createOrderData{
+		Customer:        customer,
+		CustomerAddress: request.CustomerAddress,
+		Restaurant:      restaurant,
+		Products:        products,
+		CreatedAt:       request.Timestamp.AsTime(),
+	}, nil
 }
 
 // createOrderUnpacker unpacks the kafka.Message into [[events.CreateOrderRequest]]
-func createOrderUnpacker() unpacker[*events.CreateOrderRequest] {
-	return func(msg kafka.Message) (*events.CreateOrderRequest, error) {
-		var value events.CreateOrderRequest
-		if err := proto.Unmarshal(msg.Value, &value); err != nil {
-			return nil, err
-		}
-		return &value, nil
+func createOrderUnpacker(msg kafka.Message) (*events.CreateOrderRequest, error) {
+	var value events.CreateOrderRequest
+	if err := proto.Unmarshal(msg.Value, &value); err != nil {
+		return nil, err
 	}
+	return &value, nil
 }
 
 // createOrderExecutor - executes command with [[createOrderData]]

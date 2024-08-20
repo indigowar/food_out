@@ -28,8 +28,8 @@ func NewAcceptOrderConsumer(
 
 	return newConsumer(
 		id,
-		acceptOrderValidator(),
-		acceptOrderUnpacker(),
+		acceptOrderUnpacker,
+		acceptOrderValidator,
 		acceptOrderExecutioner(command),
 		logger,
 		brokers,
@@ -45,38 +45,34 @@ type acceptOrderData struct {
 	Timestmap time.Time
 }
 
-func acceptOrderValidator() validator[*events.RestaurantAcceptedOrder, acceptOrderData] {
-	return func(request *events.RestaurantAcceptedOrder) (acceptOrderData, error) {
-		order, err := uuid.Parse(request.Order)
-		if err != nil {
-			return acceptOrderData{}, errors.New("order: is invalid")
-		}
-
-		manager, err := uuid.Parse(request.Manager)
-		if err != nil {
-			return acceptOrderData{}, errors.New("manager: is invalid")
-		}
-
-		if request.Timestamp.AsTime().After(time.Now()) {
-			return acceptOrderData{}, errors.New("acceptedAt: is invalid(haven't happened yet)")
-		}
-
-		return acceptOrderData{
-			Order:     order,
-			Manager:   manager,
-			Timestmap: request.Timestamp.AsTime(),
-		}, nil
+func acceptOrderValidator(request *events.RestaurantAcceptedOrder) (acceptOrderData, error) {
+	order, err := uuid.Parse(request.Order)
+	if err != nil {
+		return acceptOrderData{}, errors.New("order: is invalid")
 	}
+
+	manager, err := uuid.Parse(request.Manager)
+	if err != nil {
+		return acceptOrderData{}, errors.New("manager: is invalid")
+	}
+
+	if request.Timestamp.AsTime().After(time.Now()) {
+		return acceptOrderData{}, errors.New("acceptedAt: is invalid(haven't happened yet)")
+	}
+
+	return acceptOrderData{
+		Order:     order,
+		Manager:   manager,
+		Timestmap: request.Timestamp.AsTime(),
+	}, nil
 }
 
-func acceptOrderUnpacker() unpacker[*events.RestaurantAcceptedOrder] {
-	return func(msg kafka.Message) (*events.RestaurantAcceptedOrder, error) {
-		var value events.RestaurantAcceptedOrder
-		if err := proto.Unmarshal(msg.Value, &value); err != nil {
-			return nil, err
-		}
-		return &value, nil
+func acceptOrderUnpacker(msg kafka.Message) (*events.RestaurantAcceptedOrder, error) {
+	var value events.RestaurantAcceptedOrder
+	if err := proto.Unmarshal(msg.Value, &value); err != nil {
+		return nil, err
 	}
+	return &value, nil
 }
 
 func acceptOrderExecutioner(cmd *commands.AcceptOrder) executioner[acceptOrderData] {

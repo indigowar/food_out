@@ -31,7 +31,7 @@ Coming soon...
 
 The task is to implement whole food delivery application with micro-service architecture and Go programming language.
 
-### System Requirements 
+### System Requirements
 
 - [ ] Account management;
 - [ ] Auth;
@@ -39,7 +39,7 @@ The task is to implement whole food delivery application with micro-service arch
 - [ ] Managing working status for couriers.
 - [ ] Serving shop.
 - [ ] Creating orders.
-- [ ] Functionality to accept or reject orders for restaurants and couriers. 
+- [ ] Functionality to accept or reject orders for restaurants and couriers.
 
 ## Architecture
 
@@ -98,7 +98,7 @@ Order service contains two domain fields:
 
 The OrderViewer is exposed, but the Order Management Service is private for the system and does not have public API.
 
-### Media Manager 
+### Media Manager
 
 Image Uploader is a utillity-service that handles media uploading/receiving,
 it is primarily used as an image storage for dishes, categories, restaurants, user profiles.
@@ -112,4 +112,3 @@ Auth service is using Redis for storing sessions, due to it's great functionalit
 For storing media(images) MinIO is used.
 
 Kafka is used as a message broker.
-

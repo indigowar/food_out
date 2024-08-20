@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"log/slog"
+	"sync"
 
 	"github.com/segmentio/kafka-go"
 	"google.golang.org/protobuf/reflect/protoreflect"
@@ -34,12 +35,14 @@ type Consumer interface {
 type consumer[E event, D any] struct {
 	id string
 
-	validator   validator[E, D]
 	unpacker    unpacker[E]
+	validator   validator[E, D]
 	executioner executioner[D]
 
 	logger *slog.Logger
 	reader *kafka.Reader
+
+	waitGroup sync.WaitGroup
 }
 
 func (c *consumer[E, D]) Run(ctx context.Context) error {
@@ -54,6 +57,11 @@ func (c *consumer[E, D]) Run(ctx context.Context) error {
 	go c.validate(runCtx, requests, validatedData, errChan)
 	go c.execute(runCtx, validatedData, errChan)
 
+	go func() {
+		c.waitGroup.Done()
+		close(errChan)
+	}()
+
 	for err := range errChan {
 		if errors.Is(err, fatalError) {
 			c.logger.Error("Fatal Consumer error", "consumer", c.id, "err", err)
@@ -66,6 +74,7 @@ func (c *consumer[E, D]) Run(ctx context.Context) error {
 }
 
 func (c *consumer[E, D]) consume(ctx context.Context, requests chan<- E, errors chan<- error) {
+	defer c.waitGroup.Done()
 	for {
 		message, err := c.reader.ReadMessage(ctx)
 		if err != nil {
@@ -89,6 +98,7 @@ func (c *consumer[Event, Data]) validate(
 	results chan<- Data,
 	errors chan<- error,
 ) {
+	defer c.waitGroup.Done()
 	for {
 		select {
 		case <-ctx.Done():
@@ -110,7 +120,7 @@ func (c *consumer[Event, Data]) execute(
 	requests <-chan Data,
 	errors chan<- error,
 ) {
-
+	defer c.waitGroup.Done()
 	for {
 		select {
 		case <-ctx.Done():
@@ -126,8 +136,8 @@ func (c *consumer[Event, Data]) execute(
 
 func newConsumer[E event, D any](
 	id string,
-	validator validator[E, D],
 	unpacker unpacker[E],
+	validator validator[E, D],
 	executioner executioner[D],
 	logger *slog.Logger,
 	brokers []string,
@@ -144,10 +154,11 @@ func newConsumer[E event, D any](
 
 	return &consumer[E, D]{
 		id:          id,
-		validator:   validator,
 		unpacker:    unpacker,
+		validator:   validator,
 		executioner: executioner,
 		logger:      logger,
 		reader:      reader,
+		waitGroup:   sync.WaitGroup{},
 	}, nil
 }
