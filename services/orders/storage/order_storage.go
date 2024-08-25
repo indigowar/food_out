@@ -11,6 +11,8 @@ import (
 	"github.com/indigowar/services/orders/storage/gen"
 )
 
+//go:generate sqlc generate .
+
 type OrderStrorage struct {
 	connection *pgx.Conn
 	queries    *gen.Queries
