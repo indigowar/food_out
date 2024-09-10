@@ -139,6 +139,5 @@ func productToModel(product *events.Product) (models.Product, error) {
 		Picture:     product.Picture,
 		Price:       float64(product.Price),
 		Description: product.Description,
-		Categories:  categories,
 	}, nil
 }

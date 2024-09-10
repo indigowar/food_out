@@ -36,7 +36,6 @@ func (suite *createOrderTestSuite) SetupSuite() {
 			Picture:     "ksfjdldval;fd",
 			Price:       40.0,
 			Description: "cool product",
-			Categories:  []uuid.UUID{uuid.New(), uuid.New()},
 		}
 	}
 }
@@ -60,7 +59,6 @@ func (suite *createOrderTestSuite) TestCreateOrder_InvalidProducts() {
 			Picture:     "ksfjdldval;fd",
 			Price:       40.0,
 			Description: "cool product",
-			Categories:  []uuid.UUID{uuid.New(), uuid.New()},
 		}
 	}
 

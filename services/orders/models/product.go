@@ -9,5 +9,4 @@ type Product struct {
 	Picture     string
 	Price       float64
 	Description string
-	Categories  []uuid.UUID
 }

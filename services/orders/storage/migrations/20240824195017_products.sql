@@ -17,20 +17,9 @@ CREATE TABLE products(
         ON DELETE CASCADE
 );
 
-CREATE TABLE products_categories(
-    product UUID NOT NULL,
-    category VARCHAR(255) NOT NULL,
-    
-    PRIMARY KEY(product, category),
-    
-    FOREIGN KEY(product) REFERENCES products(id)
-        ON UPDATE CASCADE
-        ON DELETE CASCADE
-);
 -- +goose StatementEnd
 
 -- +goose Down
 -- +goose StatementBegin
-DROP TABLE products_categories;
 DROP TABLE products;
 -- +goose StatementEnd

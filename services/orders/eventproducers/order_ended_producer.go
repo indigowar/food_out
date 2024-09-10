@@ -102,10 +102,6 @@ func orderToEvent(order models.Order) *events.OrderEnded {
 }
 
 func productToEventProduct(product models.Product) *events.Product {
-	categories := make([]string, len(product.Categories))
-	for i, c := range product.Categories {
-		categories[i] = c.String()
-	}
 	return &events.Product{
 		Id:          product.ID.String(),
 		Restaurant:  product.Restaurant.String(),
@@ -113,6 +109,5 @@ func productToEventProduct(product models.Product) *events.Product {
 		Picture:     product.Picture,
 		Price:       float32(product.Price),
 		Description: product.Description,
-		Categories:  categories,
 	}
 }

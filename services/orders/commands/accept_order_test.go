@@ -45,7 +45,6 @@ func (suite *acceptOrderTestSuite) SetupTest() {
 			Picture:     "ksfjdldval;fd",
 			Price:       40.0,
 			Description: "cool product",
-			Categories:  []uuid.UUID{uuid.New(), uuid.New()},
 		}
 	}
 

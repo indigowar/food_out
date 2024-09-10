@@ -1,6 +1,3 @@
--- name: SelectProductCategoriesByProductID :many
-SELECT * FROM products_categories WHERE product = $1;
-
 -- name: SelectProductsByOrderID :many
 SELECT * FROM products WHERE order_id = $1;
 
