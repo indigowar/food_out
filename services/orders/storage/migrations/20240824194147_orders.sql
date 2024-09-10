@@ -41,7 +41,7 @@ CREATE TABLE orders_couriers(
 CREATE TABLE orders_payments(
     order_id UUID NOT NULL,
     transaction VARCHAR(1024) NOT NULL,
-    taken_at TIMESTAMP NOT NULL,
+    payed_at TIMESTAMP NOT NULL,
 
     PRIMARY KEY(order_id),
 

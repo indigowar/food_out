@@ -16,6 +16,7 @@ type StorageErrorType uint
 const (
 	StorageErrorTypeNotFound StorageErrorType = iota
 	StorageErrorTypeAlreadyExists
+	StorageErrorTypeOther
 )
 
 type OrderStorage interface {
