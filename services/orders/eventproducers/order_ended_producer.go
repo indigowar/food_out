@@ -14,7 +14,7 @@ import (
 )
 
 //go:generate mkdir -p ./events
-//go:generate protoc --go_out=./events --go_opt=paths=source_relative ./events.proto
+//go:generate protoc --go_out=./events --go_opt=paths=source_relative ./produced_events.proto
 
 type OrderEndedProducer struct {
 	writer *kafka.Writer
