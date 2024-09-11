@@ -23,8 +23,17 @@ services:
       POSTGRES_PASSWORD: ${ORDERS_POSTGRES_PASSWORD}
       POSTGRES_DB: ${ORDERS_POSTGRES_DB}
 
-      KAFKA_HOST: kafka
-      KAFKA_PORT: 9092
+      KAFKA_HOST: 'kafka:9092'
+      KAFKA_GROUP: orders
+      KAFKA_TOPIC_ORDER_ENDED: order_ended
+      KAFKA_TOPIC_ACCEPT_ORDER: accept_order
+      KAFKA_TOPIC_COOKING_STARTED: cooking_started
+      KAFKA_TOPIC_CREATE_ORDER: create_order
+      KAFKA_TOPIC_DELIVERY_STARTED: delivery_started
+      KAFKA_TOPIC_DELIVERY_COMPLETED: delivery_completed
+      KAFKA_TOPIC_ORDER_PAYED: order_payed
+      KAFKA_TOPIC_TAKE_ORDER: take_order
+      KAFKA_TOPIC_CANCEL_ORDER: cancel_order
 
   orders_db:
     container_name: orders_db
