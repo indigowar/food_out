@@ -53,12 +53,13 @@ func (c *consumer[E, D]) Run(ctx context.Context) error {
 	runCtx, cancel := context.WithCancel(ctx)
 	defer cancel()
 
+	c.waitGroup.Add(3)
 	go c.consume(runCtx, requests, errChan)
 	go c.validate(runCtx, requests, validatedData, errChan)
 	go c.execute(runCtx, validatedData, errChan)
 
 	go func() {
-		c.waitGroup.Done()
+		c.waitGroup.Wait()
 		close(errChan)
 	}()
 
