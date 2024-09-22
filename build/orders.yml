@@ -2,8 +2,7 @@ services:
   orders:
     container_name: orders
     restart: unless-stopped
-    build:
-      context: ../services/orders
+    image: indigowar/food_out_orders
     networks:
       - order-network
       - proxy-network

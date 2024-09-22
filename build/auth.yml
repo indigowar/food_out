@@ -1,9 +1,7 @@
 services:
   auth_service:
     container_name: auth
-    build:
-      context: ../services/auth
-      dockerfile: ./Dockerfile
+    image: indigowar/food_out_auth:latest
     restart: unless-stopped
     depends_on:
       - auth_storage

@@ -1,9 +1,7 @@
 services:
   media_manager:
     container_name: media_manager
-    build:
-      context: ../services/media_manager
-      dockerfile: ./Dockerfile
+    image: indigowar/food_out_media_manager:latest
     depends_on:
       - minio
     networks:

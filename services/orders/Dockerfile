@@ -1,22 +1,12 @@
 FROM golang:1.23 AS build
-
 WORKDIR /app
-
-COPY go.mod .
-COPY go.sum .
-
+COPY go.mod go.sum ./
 RUN go mod download
-
 COPY . .
-
 RUN CGO_ENABLED=0 GOOS=linux go build -o orders .
 
 FROM alpine:latest
-
 WORKDIR /app
-
 COPY --from=build /app/orders /bin/orders
-
 EXPOSE 80
-
 CMD [ "/bin/orders" ]

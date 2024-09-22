@@ -1,9 +1,7 @@
 services:
   accounts:
     container_name: accounts
-    build:
-      context: ../services/accounts
-      dockerfile: ./Dockerfile
+    image: indigowar/food_out_accounts:latest
     restart: unless-stopped
     depends_on:
       - accounts_database

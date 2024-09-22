@@ -1,9 +1,7 @@
 services:
   menu:
     container_name: menu
-    build:
-      context: ../services/menu
-      dockerfile: Dockerfile
+    image: indigowar/food_out_menu
     restart: unless-stopped
     depends_on:
       - menu_db
