@@ -130,19 +130,18 @@ func main() {
 		os.Exit(1)
 	}
 
-	// todo: add cancel consumer and command
-	// cancelOrder , _ := eventconsumers.NewCancelOrderConsumer(
-	// 	logger,
-	// 	commands.NewCancelOrder(logger, &orderStorage, orderEndedProducer),
-	// 	cfg.MessageQueue.Hosts,
-	// 	cfg.MessageQueue.Group,
-	// 	cfg.MessageQueue.Topics.CancelOrder,
-	// 	0,
-	// )
-	// if err != nil {
-	// 	logger.Error("Failed to create a consumer", "event", "cancel_order", "err", err)
-	// 	os.Exit(1)
-	// }
+	cancelOrder, err := eventconsumers.NewCancelOrderConsumer(
+		logger,
+		commands.NewCancelOrder(logger, &orderStorage, orderEndedProducer),
+		cfg.MessageQueue.Hosts,
+		cfg.MessageQueue.Group,
+		cfg.MessageQueue.Topics.CancelOrder,
+		0,
+	)
+	if err != nil {
+		logger.Error("Failed to create a consumer", "event", "cancel_order", "err", err)
+		os.Exit(1)
+	}
 
 	run(
 		logger,
@@ -154,7 +153,7 @@ func main() {
 			deliveryStarted,
 			orderPayed,
 			takeOrder,
-			// cancelOrder,
+			cancelOrder,
 		},
 	// api,
 	)
