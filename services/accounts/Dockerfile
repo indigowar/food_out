@@ -1,7 +1,10 @@
-FROM golang:1.23-alpine as build
+FROM golang:1.23-alpine AS build
+
 WORKDIR /app
 COPY go.mod go.sum ./
-RUN go mod download & go mod verify
+
+RUN go mod download
+RUN go mod verify
 
 RUN go install github.com/sqlc-dev/sqlc/cmd/sqlc@latest
 RUN go install google.golang.org/protobuf/cmd/protoc-gen-go
