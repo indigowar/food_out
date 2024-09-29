@@ -20,3 +20,6 @@ SET original_id = EXCLUDED.original_id,
 
 -- name: DeleteProductByID :exec
 DELETE FROM products WHERE id = $1;
+
+-- name: DeleteProductByOrderID :exec
+DELETE FROM products WHERE order_id = $1;

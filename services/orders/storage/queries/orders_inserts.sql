@@ -29,3 +29,15 @@ VALUES ($1, $2, $3)
 ON CONFLICT (order_id) DO UPDATE
 SET canceller = EXCLUDED.canceller,
     cancelled_at = EXCLUDED.cancelled_at;
+
+-- name: DeleteOrderByID :execresult
+DELETE FROM orders WHERE id = $1;
+
+-- name: UpdateOrderByID :execresult
+UPDATE orders
+SET id = $1,
+    restaurant = $2,
+    created_at = $3,
+    customer = $4,
+    customer_address = $5
+WHERE id = $1;

@@ -2,9 +2,12 @@ package storage
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"github.com/jackc/pgx/v5"
+
+	"github.com/indigowar/services/orders/commands"
 )
 
 func runInTxWithReturn[Return any](
@@ -45,4 +48,16 @@ func runInTx(
 	}
 
 	return tx.Commit(ctx)
+}
+
+func mapNoRowsError(err error, object, field string) error {
+	if errors.Is(err, pgx.ErrNoRows) {
+		return &commands.StorageError{
+			ErrorType: commands.StorageErrorTypeNotFound,
+			Object:    object,
+			Field:     field,
+			Message:   fmt.Errorf("%s was not found", object),
+		}
+	}
+	return err
 }
