@@ -20,6 +20,11 @@ message OrderEnded {
     google.protobuf.Timestamp accepted_at = 2;
   }
 
+  message Courier {
+    string courier = 1;
+    google.protobuf.Timestamp taken_at = 2;
+  }
+
   message Payment {
     string transaction = 1;
     google.protobuf.Timestamp payed_at = 2;
@@ -39,10 +44,11 @@ message OrderEnded {
   repeated Product products = 6;
 
   optional Acceptance acceptance = 7;
-  optional Payment payment = 8;
-  optional Cancellation cancellation = 9;
+  optional Courier courier = 8;
+  optional Payment payment = 9;
+  optional Cancellation cancellation = 10;
 
-  optional google.protobuf.Timestamp cooking_started_at = 10;
-  optional google.protobuf.Timestamp delivery_started_at = 11;
-  optional google.protobuf.Timestamp delivery_completed_at = 12;
+  optional google.protobuf.Timestamp cooking_started_at = 11;
+  optional google.protobuf.Timestamp delivery_started_at = 12;
+  optional google.protobuf.Timestamp delivery_completed_at = 13;
 }

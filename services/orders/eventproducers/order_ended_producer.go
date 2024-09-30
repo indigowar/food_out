@@ -72,6 +72,13 @@ func orderToEvent(order models.Order) *events.OrderEnded {
 		}
 	}
 
+	if order.Courier != nil {
+		message.Courier = &events.OrderEnded_Courier{
+			Courier: order.Courier.ID.String(),
+			TakenAt: timestamppb.New(order.Courier.TakenAt),
+		}
+	}
+
 	if order.Payment != nil {
 		message.Payment = &events.OrderEnded_Payment{
 			Transaction: order.Payment.Transaction,
