@@ -111,6 +111,7 @@ func orderToEvent(order models.Order) *events.OrderEnded {
 func productToEventProduct(product models.Product) *events.Product {
 	return &events.Product{
 		Id:          product.ID.String(),
+		OriginalId:  product.Original.String(),
 		Restaurant:  product.Restaurant.String(),
 		Name:        product.Name,
 		Picture:     product.Picture,

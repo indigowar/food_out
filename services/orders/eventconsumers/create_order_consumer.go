@@ -21,7 +21,7 @@ type createOrderData struct {
 	Customer        uuid.UUID
 	CustomerAddress string
 	Restaurant      uuid.UUID
-	Products        []models.Product
+	Products        []models.OriginalProduct
 	CreatedAt       time.Time
 }
 
@@ -62,7 +62,7 @@ func createOrderValidator(request *events.CreateOrderRequest) (createOrderData, 
 		return createOrderData{}, errors.New("restaurant: is invalid")
 	}
 
-	products := make([]models.Product, len(request.Products))
+	products := make([]models.OriginalProduct, len(request.Products))
 
 	for i, v := range request.Products {
 		p, err := productToModel(v)
@@ -108,31 +108,31 @@ func createOrderExecutor(cmd *commands.CreateOrder) executioner[createOrderData]
 	}
 }
 
-func productToModel(product *events.Product) (models.Product, error) {
+func productToModel(product *events.Product) (models.OriginalProduct, error) {
 	id, err := uuid.Parse(product.Id)
 	if err != nil {
-		return models.Product{}, errors.New("id: is invalid")
+		return models.OriginalProduct{}, errors.New("id: is invalid")
 	}
 
 	restaurant, err := uuid.Parse(product.Restaurant)
 	if err != nil {
-		return models.Product{}, errors.New("restaurant: is invalid")
+		return models.OriginalProduct{}, errors.New("restaurant: is invalid")
 	}
 
 	if product.Price < 0 {
-		return models.Product{}, errors.New("price: is not positive")
+		return models.OriginalProduct{}, errors.New("price: is not positive")
 	}
 
 	categories := make([]uuid.UUID, len(product.Categories))
 	for i, v := range product.Categories {
 		id, err := uuid.Parse(v)
 		if err != nil {
-			return models.Product{}, fmt.Errorf("categories: %d is invalid", i)
+			return models.OriginalProduct{}, fmt.Errorf("categories: %d is invalid", i)
 		}
 		categories[i] = id
 	}
 
-	return models.Product{
+	return models.OriginalProduct{
 		ID:          id,
 		Restaurant:  restaurant,
 		Name:        product.Name,

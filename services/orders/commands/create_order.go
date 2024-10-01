@@ -22,10 +22,10 @@ func (cmd *CreateOrder) CreateOrder(
 	customer uuid.UUID,
 	customerAddress string,
 	restaurant uuid.UUID,
-	products []models.Product,
+	originalProducts []models.OriginalProduct,
 	timestamp time.Time,
 ) error {
-	if !cmd.validateProducts(restaurant, products) {
+	if !cmd.validateProducts(restaurant, originalProducts) {
 		return fmt.Errorf("create order: %w: products", ErrInvalidRequest)
 	}
 
@@ -33,7 +33,19 @@ func (cmd *CreateOrder) CreateOrder(
 		return fmt.Errorf("create order: %w: createdAt", ErrInvalidRequest)
 	}
 
-	// create an order
+	products := make([]models.Product, 0, len(originalProducts))
+	for _, op := range originalProducts {
+		products = append(products, models.Product{
+			ID:          uuid.New(),
+			Original:    op.ID,
+			Restaurant:  op.Restaurant,
+			Name:        op.Name,
+			Picture:     op.Picture,
+			Price:       op.Price,
+			Description: op.Description,
+		})
+	}
+
 	order := models.Order{
 		ID:         uuid.New(),
 		Restaurant: restaurant,
@@ -64,7 +76,7 @@ func (cmd *CreateOrder) CreateOrder(
 	return nil
 }
 
-func (cmd *CreateOrder) validateProducts(restaurant uuid.UUID, products []models.Product) bool {
+func (cmd *CreateOrder) validateProducts(restaurant uuid.UUID, products []models.OriginalProduct) bool {
 	for _, v := range products {
 		if v.Restaurant != restaurant {
 			return false

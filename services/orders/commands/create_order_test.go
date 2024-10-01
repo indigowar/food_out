@@ -22,14 +22,14 @@ type createOrderTestSuite struct {
 	cmd     *CreateOrder
 
 	restaurantID uuid.UUID
-	products     []models.Product
+	products     []models.OriginalProduct
 }
 
 func (suite *createOrderTestSuite) SetupSuite() {
 	suite.restaurantID = uuid.New()
-	suite.products = make([]models.Product, 10)
+	suite.products = make([]models.OriginalProduct, 10)
 	for i := 0; i < 10; i++ {
-		suite.products[i] = models.Product{
+		suite.products[i] = models.OriginalProduct{
 			ID:          uuid.New(),
 			Restaurant:  suite.restaurantID,
 			Name:        "Product Name X",
@@ -50,9 +50,9 @@ func (suite *createOrderTestSuite) SetupTest() {
 
 func (suite *createOrderTestSuite) TestCreateOrder_InvalidProducts() {
 	restaurant := uuid.New()
-	products := make([]models.Product, 10)
+	products := make([]models.OriginalProduct, 10)
 	for i := 0; i < 10; i++ {
-		products[i] = models.Product{
+		products[i] = models.OriginalProduct{
 			ID:          uuid.New(),
 			Restaurant:  uuid.New(), // Product's restaurant is different than restaurant variable
 			Name:        "Product Name X",
