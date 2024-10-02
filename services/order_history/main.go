@@ -31,7 +31,7 @@ func main() {
 
 	service := service.NewOrderHistory(logger, postgres.NewOrderStorage(postgresCon))
 
-	eventConsumer := kafka.NewOrderEndedConsumer(service, config.Kafka)
+	eventConsumer := kafka.NewOrderEndedConsumer(logger, service, config.Kafka)
 	api := api.NewAPI()
 
 	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt)
