@@ -1,6 +1,8 @@
 package postgres
 
 import (
+	"context"
+
 	"github.com/jackc/pgx/v5"
 
 	"github.com/indigowar/food_out/services/order_history/service"
@@ -13,6 +15,11 @@ type OrderStorage struct {
 }
 
 var _ service.Storage = &OrderStorage{}
+
+// Add implements service.Storage.
+func (o *OrderStorage) Add(ctx context.Context, order service.Order) error {
+	panic("unimplemented")
+}
 
 func NewOrderStorage(conn *pgx.Conn) *OrderStorage {
 	return &OrderStorage{
