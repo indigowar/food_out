@@ -6,7 +6,7 @@ import (
 	"github.com/google/uuid"
 )
 
-//go:generate moq -out restaurant_retriever_moq_test.go . RestaurantRetriever
+//go:generate go run github.com/matryer/moq -out restaurant_retriever_moq_test.go . RestaurantRetriever
 
 // RestaurantRetriever- a port to retrieve restaurants in the service
 type RestaurantRetriever interface {

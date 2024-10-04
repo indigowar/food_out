@@ -6,7 +6,7 @@ import (
 	"github.com/google/uuid"
 )
 
-//go:generate moq -out restaurant_storage_port_moq_test.go . RestaurantStoragePort
+//go:generate go run github.com/matryer/moq -out restaurant_storage_port_moq_test.go . RestaurantStoragePort
 
 // RestaurantStoragePort - is a port to restaurant storage
 type RestaurantStoragePort interface {

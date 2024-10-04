@@ -8,7 +8,7 @@ import (
 	"github.com/indigowar/food_out/services/menu/domain"
 )
 
-//go:generate moq -out dish_storage_port_moq_test.go . DishStoragePort
+//go:generate go run github.com/matryer/moq -out dish_storage_port_moq_test.go . DishStoragePort
 
 // DishStoragePort - is a port to dish storage
 type DishStoragePort interface {

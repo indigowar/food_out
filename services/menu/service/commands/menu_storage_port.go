@@ -8,7 +8,7 @@ import (
 	"github.com/indigowar/food_out/services/menu/domain"
 )
 
-//go:generate moq -out menu_storage_port_moq_test.go . MenuStoragePort
+//go:generate go run github.com/matryer/moq -out menu_storage_port_moq_test.go . MenuStoragePort
 
 // MenuStoragePort - is a port to menu storage
 type MenuStoragePort interface {

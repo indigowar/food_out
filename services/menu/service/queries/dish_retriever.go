@@ -8,7 +8,7 @@ import (
 	"github.com/indigowar/food_out/services/menu/domain"
 )
 
-//go:generate moq -out dish_retriever_moq_test.go . DishRetriever
+//go:generate go run github.com/matryer/moq -out dish_retriever_moq_test.go . DishRetriever
 
 // DishRetriever - a port to the storage to retrieve the dishes
 type DishRetriever interface {

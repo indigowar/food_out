@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/indigowar/food_out/services/menu/ports/delivery/rest/api"
+	"github.com/indigowar/food_out/services/menu/ports/delivery/rest/gen"
 	"github.com/indigowar/food_out/services/menu/service/queries"
 )
 
@@ -53,7 +53,7 @@ func New(
 	restaurantList *queries.GetRestaurantsQuery,
 	dishValidation *queries.ValidateDishOwnershipQuery,
 ) (*Delivery, error) {
-	api, err := api.NewServer(&handler{
+	api, err := gen.NewServer(&handler{
 		dishById:         dishById,
 		menuById:         menuById,
 		menuByRestaurant: menuByRestaurant,
