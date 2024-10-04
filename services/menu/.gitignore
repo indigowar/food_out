@@ -1,4 +1,4 @@
-# ./ports/storage/postgres/data/
-# *_gen.go
-# *_moq_test.go
+ports/storage/postgres/data/
+*_gen.go
+*_moq_test.go
 gen/
