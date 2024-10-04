@@ -10,9 +10,9 @@ require (
 	github.com/matryer/moq v0.3.4
 	github.com/ogen-go/ogen v1.1.0
 	github.com/redis/go-redis/v9 v9.5.1
-	go.opentelemetry.io/otel v1.26.0
-	go.opentelemetry.io/otel/metric v1.26.0
-	go.opentelemetry.io/otel/trace v1.26.0
+	go.opentelemetry.io/otel v1.30.0
+	go.opentelemetry.io/otel/metric v1.30.0
+	go.opentelemetry.io/otel/trace v1.30.0
 	go.uber.org/multierr v1.11.0
 )
 
@@ -23,7 +23,7 @@ require (
 	github.com/fatih/color v1.16.0 // indirect
 	github.com/ghodss/yaml v1.0.0 // indirect
 	github.com/go-faster/yaml v0.4.6 // indirect
-	github.com/go-logr/logr v1.4.1 // indirect
+	github.com/go-logr/logr v1.4.2 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect

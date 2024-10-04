@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/indigowar/food_out/services/auth/internal/domain"
-	"github.com/indigowar/food_out/services/auth/internal/infrastructure/delivery/rest/api"
+	"github.com/indigowar/food_out/services/auth/internal/infrastructure/delivery/rest/gen"
 	"github.com/indigowar/food_out/services/auth/internal/service"
 )
 
@@ -20,7 +20,7 @@ type RefreshSecurityHandler struct {
 }
 
 // HandleRefreshAuth implements api.SecurityHandler.
-func (h *RefreshSecurityHandler) HandleRefreshAuth(ctx context.Context, operationName string, t api.RefreshAuth) (context.Context, error) {
+func (h *RefreshSecurityHandler) HandleRefreshAuth(ctx context.Context, operationName string, t gen.RefreshAuth) (context.Context, error) {
 	token := domain.SessionToken(t.GetAPIKey())
 	session, err := h.sv.GetExistingSession(ctx, token)
 	if err != nil {
@@ -33,7 +33,7 @@ func (h *RefreshSecurityHandler) HandleRefreshAuth(ctx context.Context, operatio
 	), nil
 }
 
-var _ api.SecurityHandler = &RefreshSecurityHandler{}
+var _ gen.SecurityHandler = &RefreshSecurityHandler{}
 
 func NewRefreshSecurityHandler(sv *service.Service) *RefreshSecurityHandler {
 	return &RefreshSecurityHandler{

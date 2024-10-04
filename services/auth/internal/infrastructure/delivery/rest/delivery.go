@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/indigowar/food_out/services/auth/internal/infrastructure/delivery/rest/api"
+	"github.com/indigowar/food_out/services/auth/internal/infrastructure/delivery/rest/gen"
 	"github.com/indigowar/food_out/services/auth/internal/service"
 )
 
@@ -60,7 +60,7 @@ func New(
 		sv: service,
 	}
 
-	api, err := api.NewServer(wrapper, refreshSecurityHandler)
+	api, err := gen.NewServer(wrapper, refreshSecurityHandler)
 	if err != nil {
 		return Delivery{}, fmt.Errorf("rest.Delivery failed to create api: %w", err)
 	}

@@ -7,12 +7,12 @@ import (
 
 	"github.com/google/uuid"
 
-	"github.com/indigowar/food_out/services/auth/internal/infrastructure/credentials_validator/client/api"
+	"github.com/indigowar/food_out/services/auth/internal/infrastructure/credentials_validator/client/gen"
 	"github.com/indigowar/food_out/services/auth/internal/service"
 )
 
 type CredentialsValidator struct {
-	api *api.Client
+	api *gen.Client
 }
 
 var _ service.CredentialsValidator = &CredentialsValidator{}
@@ -24,7 +24,7 @@ func (c *CredentialsValidator) Validate(ctx context.Context, phone string, passw
 		return uuid.UUID{}, err
 	}
 
-	idRes, ok := res.(*api.AccountId)
+	idRes, ok := res.(*gen.AccountId)
 	if !ok {
 		return uuid.UUID{}, c.handleErrorResponse(res)
 	}
@@ -37,8 +37,8 @@ func (c *CredentialsValidator) Validate(ctx context.Context, phone string, passw
 	return id, nil
 }
 
-func (c *CredentialsValidator) makeRequest(ctx context.Context, phone string, password string) (api.ValidateCredentialsRes, error) {
-	res, err := c.api.ValidateCredentials(ctx, &api.AccountCredentials{
+func (c *CredentialsValidator) makeRequest(ctx context.Context, phone string, password string) (gen.ValidateCredentialsRes, error) {
+	res, err := c.api.ValidateCredentials(ctx, &gen.AccountCredentials{
 		Phone:    phone,
 		Password: password,
 	})
@@ -50,12 +50,12 @@ func (c *CredentialsValidator) makeRequest(ctx context.Context, phone string, pa
 	return res, nil
 }
 
-func (c *CredentialsValidator) handleErrorResponse(res api.ValidateCredentialsRes) error {
-	if _, ok := res.(*api.ValidateCredentialsBadRequest); ok {
+func (c *CredentialsValidator) handleErrorResponse(res gen.ValidateCredentialsRes) error {
+	if _, ok := res.(*gen.ValidateCredentialsBadRequest); ok {
 		return service.ErrCredentialsValidatorInvalid
 	}
 
-	if _, ok := res.(*api.ValidateCredentialsInternalServerError); ok {
+	if _, ok := res.(*gen.ValidateCredentialsInternalServerError); ok {
 		return errors.New("internal server error")
 	}
 
@@ -63,7 +63,7 @@ func (c *CredentialsValidator) handleErrorResponse(res api.ValidateCredentialsRe
 }
 
 func NewCredentialsValidator(accountUrl string) (*CredentialsValidator, error) {
-	api, err := api.NewClient(accountUrl)
+	api, err := gen.NewClient(accountUrl)
 	if err != nil {
 		return nil, err
 	}

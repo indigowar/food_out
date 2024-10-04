@@ -5,7 +5,7 @@ import (
 	"errors"
 
 	"github.com/indigowar/food_out/services/auth/internal/domain"
-	"github.com/indigowar/food_out/services/auth/internal/infrastructure/delivery/rest/api"
+	"github.com/indigowar/food_out/services/auth/internal/infrastructure/delivery/rest/gen"
 	"github.com/indigowar/food_out/services/auth/internal/service"
 )
 
@@ -15,93 +15,93 @@ type Wrapper struct {
 	tk AccessTokenGenerator
 }
 
-var _ api.Handler = &Wrapper{}
+var _ gen.Handler = &Wrapper{}
 
 // LogIn implements api.Handler.
-func (w *Wrapper) LogIn(ctx context.Context, req *api.Credentials) (api.LogInRes, error) {
+func (w *Wrapper) LogIn(ctx context.Context, req *gen.Credentials) (gen.LogInRes, error) {
 	session, err := w.sv.Login(ctx, req.GetPhone(), req.GetPassword())
 	if err != nil {
 		if errors.Is(err, service.ErrCredentialsAreInvalid) {
-			return &api.LogInBadRequest{
+			return &gen.LogInBadRequest{
 				Message: err.Error(),
 			}, nil
 		}
 
 		if errors.Is(err, service.ErrSessionAlreadyExists) {
-			return &api.LogInBadRequest{
+			return &gen.LogInBadRequest{
 				Message: err.Error(),
 			}, nil
 		}
 
-		return &api.LogInInternalServerError{
+		return &gen.LogInInternalServerError{
 			Message: err.Error(),
 		}, nil
 	}
 
-	return &api.TokenPair{
+	return &gen.TokenPair{
 		AccessToken:  w.tk.Generate(session.ID()),
 		RefreshToken: string(session.Token()),
 	}, nil
 }
 
 // LogoutFromSession implements api.Handler.
-func (w *Wrapper) LogoutFromSession(ctx context.Context) (api.LogoutFromSessionRes, error) {
+func (w *Wrapper) LogoutFromSession(ctx context.Context) (gen.LogoutFromSessionRes, error) {
 	token := ctx.Value(securityKeyToken).(domain.SessionToken)
 
 	if err := w.sv.Logout(ctx, token); err != nil {
 		if errors.Is(err, service.ErrSessionDoesNotExist) {
-			return &api.LogoutFromSessionBadRequest{
+			return &gen.LogoutFromSessionBadRequest{
 				Message: err.Error(),
 			}, nil
 		}
 
-		return &api.LogoutFromSessionInternalServerError{
+		return &gen.LogoutFromSessionInternalServerError{
 			Message: err.Error(),
 		}, nil
 	}
 
-	return &api.LogoutFromSessionOK{}, nil
+	return &gen.LogoutFromSessionOK{}, nil
 }
 
 // RefreshAccessToken implements api.Handler.
-func (w *Wrapper) RefreshAccessToken(ctx context.Context) (api.RefreshAccessTokenRes, error) {
+func (w *Wrapper) RefreshAccessToken(ctx context.Context) (gen.RefreshAccessTokenRes, error) {
 	token := ctx.Value(securityKeyToken).(domain.SessionToken)
 
 	session, err := w.sv.GetExistingSession(ctx, token)
 	if err != nil {
 		if errors.Is(err, service.ErrSessionDoesNotExist) {
-			return &api.RefreshAccessTokenBadRequest{
+			return &gen.RefreshAccessTokenBadRequest{
 				Message: err.Error(),
 			}, nil
 		}
 
-		return &api.RefreshAccessTokenInternalServerError{
+		return &gen.RefreshAccessTokenInternalServerError{
 			Message: err.Error(),
 		}, nil
 	}
 
-	return &api.AccessToken{
+	return &gen.AccessToken{
 		AccessToken: w.tk.Generate(session.ID()),
 	}, nil
 }
 
 // RefreshPair implements api.Handler.
-func (w *Wrapper) RefreshPair(ctx context.Context) (api.RefreshPairRes, error) {
+func (w *Wrapper) RefreshPair(ctx context.Context) (gen.RefreshPairRes, error) {
 	token := ctx.Value(securityKeyToken).(domain.SessionToken)
 
 	session, err := w.sv.RenewSession(ctx, token)
 	if err != nil {
 		if errors.Is(err, service.ErrSessionDoesNotExist) {
-			return &api.RefreshPairBadRequest{
+			return &gen.RefreshPairBadRequest{
 				Message: err.Error(),
 			}, nil
 		}
-		return &api.RefreshPairInternalServerError{
+		return &gen.RefreshPairInternalServerError{
 			Message: err.Error(),
 		}, nil
 	}
 
-	return &api.TokenPair{
+	return &gen.TokenPair{
 		AccessToken:  w.tk.Generate(session.ID()),
 		RefreshToken: string(session.Token()),
 	}, nil
