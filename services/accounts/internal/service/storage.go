@@ -14,7 +14,7 @@ var (
 	ErrAccountAlreadyInStorage  = errors.New("account already exists in the storage")
 )
 
-//go:generate moq -out storage_moq_test.go . Storage
+//go:generate go run github.com/matryer/moq -out storage_moq_test.go . Storage
 
 type Storage interface {
 	GetAll(ctx context.Context) ([]*domain.Account, error)
