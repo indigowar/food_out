@@ -27,7 +27,7 @@ FROM scratch
 
 WORKDIR /
 
-COPY --from=build /app/accounts /bin/acounts
+COPY --from=build /app/accounts /bin/accounts
 
 EXPOSE 80
 
