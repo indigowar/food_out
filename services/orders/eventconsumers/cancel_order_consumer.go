@@ -2,6 +2,7 @@ package eventconsumers
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log/slog"
 	"math/rand"
@@ -45,7 +46,21 @@ type cancelOrderData struct {
 }
 
 func cancelOrderValidator(request *events.CancellOrder) (cancelOrderData, error) {
-	panic("unimplemented")
+	order, err := uuid.Parse(request.Order)
+	if err != nil {
+		return cancelOrderData{}, errors.New("cancel order: order id is invalid")
+	}
+
+	canceller, err := uuid.Parse(request.Canceller)
+	if err != nil {
+		return cancelOrderData{}, errors.New("cancel order: canceller id is invalid")
+	}
+
+	return cancelOrderData{
+		Order:     order,
+		Canceller: canceller,
+		Timestamp: request.Timestamp.AsTime(),
+	}, nil
 }
 
 func cancelOrderUnpacker(msg kafka.Message) (*events.CancellOrder, error) {
