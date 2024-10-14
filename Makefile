@@ -8,6 +8,7 @@ up:
 		-f build/media_manager.yml \
 		-f build/menu.yml \
 		-f build/orders.yml \
+		-f build/order_history.yml \
 		-f build/traefik.yml \
 	up --build --remove-orphans
 
@@ -20,6 +21,7 @@ down:
 		-f build/media_manager.yml \
 		-f build/menu.yml \
 		-f build/orders.yml \
+		-f build/order_history.yml \
 		-f build/traefik.yml \
 	down
 

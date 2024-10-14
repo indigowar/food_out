@@ -1,0 +1,39 @@
+services:
+  order_history:
+    container_name: order_history
+    restart: unless-stopped
+    image: indigowar/food_out_order_history
+    networks:
+      - order_history_network
+      - kafka-network
+    depends_on:
+      - order_history_db
+    environment:
+      POSTGRES_HOST: order_history_db
+      POSTGRES_PORT: 5432
+      POSTGRES_USER: ${ORDER_HISTORY_POSTGRES_USER}
+      POSTGRES_PASSWORD: ${ORDER_HISTORY_POSTGRES_PASSWORD}
+      POSTGRES_DB: ${ORDER_HISTORY_POSTGRES_DB}
+
+      KAFKA_HOST: 'kafka:9092'
+      KAFKA_GROUP: order_history
+      KAFKA_TOPIC_ORDER_ENDED: order_ended
+
+  order_history_db:
+    container_name: order_history_db
+    image: postgres:15-alpine
+    restart: unless-stopped
+    networks:
+      - order_history_network
+    volumes:
+      - order_history_db:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: ${ORDER_HISTORY_POSTGRES_USER}
+      POSTGRES_PASSWORD: ${ORDER_HISTORY_POSTGRES_PASSWORD}
+      POSTGRES_DB: ${ORDER_HISTORY_POSTGRES_DB}
+
+networks:
+  order_history_network:
+
+volumes:
+  order_history_db:
