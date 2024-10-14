@@ -18,7 +18,7 @@ type AccountCreatedPublisher struct {
 var _ service.AccountCreatedPublisher = &AccountCreatedPublisher{}
 
 // PublishAccountCreated implements service.AccountCreatedPublisher.
-func (a *AccountCreatedPublisher) PublishAccountCreated(ctx context.Context, account *domain.Account) error {
+func (a *AccountCreatedPublisher) PublishAccountCreated(ctx context.Context, account domain.Account) error {
 	data, err := proto.Marshal(&AccountCreated{
 		Id:    account.ID().String(),
 		Phone: account.Phone(),

@@ -19,7 +19,7 @@ type Storage struct {
 var _ service.Storage = &Storage{}
 
 // Add implements service.Storage.
-func (s *Storage) Add(ctx context.Context, account *domain.Account) error {
+func (s *Storage) Add(ctx context.Context, account domain.Account) error {
 	params := createInsertParams(account)
 
 	if err := s.queries.InsertAccount(ctx, params); err != nil {
@@ -31,41 +31,41 @@ func (s *Storage) Add(ctx context.Context, account *domain.Account) error {
 }
 
 // GetAll implements service.Storage.
-func (s *Storage) GetAll(ctx context.Context) ([]*domain.Account, error) {
+func (s *Storage) GetAll(ctx context.Context) ([]domain.Account, error) {
 	data, err := s.queries.GetAllAccounts(ctx)
 	if err != nil {
 		// todo: add proper error handling for storage
 		return nil, err
 	}
 
-	accounts := make([]*domain.Account, len(data))
-	for i, v := range data {
-		a := toModel(v)
-		accounts[i] = &a
+	accounts := make([]domain.Account, 0, len(data))
+	for _, v := range data {
+		accounts = append(accounts, toModel(v))
 	}
+
 	return accounts, nil
 }
 
 // GetByID implements service.Storage.
-func (s *Storage) GetByID(ctx context.Context, id uuid.UUID) (*domain.Account, error) {
+func (s *Storage) GetByID(ctx context.Context, id uuid.UUID) (domain.Account, error) {
 	a, err := s.queries.GetAccountByID(ctx, id)
 	if err != nil {
 		// todo: add proper error handling for storage
-		return nil, err
+		return domain.Account{}, err
 	}
-	account := toModel(a)
-	return &account, nil
+
+	return toModel(a), nil
 }
 
 // GetByPhone implements service.Storage.
-func (s *Storage) GetByPhone(ctx context.Context, phone string) (*domain.Account, error) {
+func (s *Storage) GetByPhone(ctx context.Context, phone string) (domain.Account, error) {
 	a, err := s.queries.GetAccountByPhone(ctx, phone)
 	if err != nil {
 		// todo: add proper error handling for storage
-		return nil, err
+		return domain.Account{}, err
 	}
-	account := toModel(a)
-	return &account, nil
+
+	return toModel(a), nil
 }
 
 // Remove implements service.Storage.
@@ -75,7 +75,7 @@ func (s *Storage) Remove(ctx context.Context, id uuid.UUID) error {
 }
 
 // Update implements service.Storage.
-func (s *Storage) Update(ctx context.Context, account *domain.Account) error {
+func (s *Storage) Update(ctx context.Context, account domain.Account) error {
 	params := gen.UpdateAccountParams{
 		Phone:    account.Phone(),
 		Password: account.Password(),

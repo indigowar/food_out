@@ -91,15 +91,15 @@ type Account struct {
 	profile  *url.URL // nullable
 }
 
-func NewAccount(phone string, password string) (*Account, error) {
-	account := &Account{id: uuid.New()}
+func NewAccount(phone string, password string) (Account, error) {
+	account := Account{id: uuid.New()}
 
 	if err := account.SetPhone(phone); err != nil {
-		return nil, err
+		return Account{}, err
 	}
 
 	if err := account.SetPassword(password); err != nil {
-		return nil, err
+		return Account{}, err
 	}
 
 	return account, nil

@@ -19,13 +19,13 @@ func toModel(a gen.Account) domain.Account {
 		name = &a.Name.String
 	}
 	var url *url.URL = nil
-	if a.ProfilePicture.Valid {
-		url, _ = url.Parse(a.ProfilePicture.String)
+	if a.Profile.Valid {
+		url, _ = url.Parse(a.Profile.String)
 	}
 	return domain.NewAccountRaw(a.ID, a.Phone, a.Password, name, url)
 }
 
-func createInsertParams(account *domain.Account) gen.InsertAccountParams {
+func createInsertParams(account domain.Account) gen.InsertAccountParams {
 	params := gen.InsertAccountParams{
 		ID:       account.ID(),
 		Phone:    account.Phone(),

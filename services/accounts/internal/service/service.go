@@ -30,11 +30,11 @@ type Service struct {
 	accountDeletedPublisher AccountDeletedPublisher
 }
 
-func (svc *Service) GetAccountByID(ctx context.Context, id uuid.UUID) (*domain.Account, error) {
+func (svc *Service) GetAccountByID(ctx context.Context, id uuid.UUID) (domain.Account, error) {
 	account, err := svc.storage.GetByID(ctx, id)
 	if err != nil {
 		if errors.Is(err, ErrAccountNotFoundInStorage) {
-			return nil, ErrNotFound
+			return domain.Account{}, ErrNotFound
 		}
 
 		svc.logger.Warn(
@@ -44,21 +44,21 @@ func (svc *Service) GetAccountByID(ctx context.Context, id uuid.UUID) (*domain.A
 			"error", err.Error(),
 		)
 
-		return nil, ErrInternal
+		return domain.Account{}, ErrInternal
 	}
 
 	return account, nil
 }
 
-func (svc *Service) GetAccountByPhone(ctx context.Context, phone string) (*domain.Account, error) {
+func (svc *Service) GetAccountByPhone(ctx context.Context, phone string) (domain.Account, error) {
 	if err := domain.ValidatePhoneNumber(phone); err != nil {
-		return nil, fmt.Errorf("%w:%s", ErrInvalidValue, err)
+		return domain.Account{}, fmt.Errorf("%w:%s", ErrInvalidValue, err)
 	}
 
 	account, err := svc.storage.GetByPhone(ctx, phone)
 	if err != nil {
 		if errors.Is(err, ErrAccountNotFoundInStorage) {
-			return nil, ErrNotFound
+			return domain.Account{}, ErrNotFound
 		}
 
 		svc.logger.Warn(
@@ -68,25 +68,25 @@ func (svc *Service) GetAccountByPhone(ctx context.Context, phone string) (*domai
 			"error", err.Error(),
 		)
 
-		return nil, ErrInternal
+		return domain.Account{}, ErrInternal
 	}
 
 	return account, nil
 }
 
-func (svc *Service) CreateAccount(ctx context.Context, phone string, password string) (*domain.Account, error) {
+func (svc *Service) CreateAccount(ctx context.Context, phone string, password string) (domain.Account, error) {
 	if err := svc.validateCredentials(phone, password); err != nil {
-		return nil, fmt.Errorf("%w:%s", ErrInvalidCredentials, err)
+		return domain.Account{}, fmt.Errorf("%w:%s", ErrInvalidCredentials, err)
 	}
 
 	account, err := domain.NewAccount(phone, password)
 	if err != nil {
-		return nil, fmt.Errorf("%w:%s", ErrInvalidCredentials, err)
+		return domain.Account{}, fmt.Errorf("%w:%s", ErrInvalidCredentials, err)
 	}
 
 	if err := svc.storage.Add(ctx, account); err != nil {
 		if errors.Is(err, ErrAccountAlreadyInStorage) {
-			return nil, ErrPhoneNumberAlreadyInUse
+			return domain.Account{}, ErrPhoneNumberAlreadyInUse
 		}
 
 		svc.logger.Warn(
@@ -96,7 +96,7 @@ func (svc *Service) CreateAccount(ctx context.Context, phone string, password st
 			"error", err.Error(),
 		)
 
-		return nil, ErrInternal
+		return domain.Account{}, ErrInternal
 	}
 
 	svc.accountCreatedPublisher.PublishAccountCreated(ctx, account)
@@ -221,7 +221,7 @@ func (svc *Service) validateCredentials(phone string, password string) error {
 	return errors.Join(phoneErr, passwordErr)
 }
 
-func (svc *Service) updateAccount(ctx context.Context, account *domain.Account, masterAction string) error {
+func (svc *Service) updateAccount(ctx context.Context, account domain.Account, masterAction string) error {
 	if err := svc.storage.Update(ctx, account); err != nil {
 		svc.logger.Info(
 			"Action stopped",

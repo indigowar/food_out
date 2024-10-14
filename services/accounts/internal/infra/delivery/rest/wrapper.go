@@ -178,7 +178,7 @@ func (w *Wrapper) getId(ctx context.Context) (uuid.UUID, error) {
 	return id, nil
 }
 
-func (w *Wrapper) toAccountInfo(account *domain.Account) *api.AccountInfo {
+func (w *Wrapper) toAccountInfo(account domain.Account) *api.AccountInfo {
 	info := &api.AccountInfo{
 		ID:    account.ID().String(),
 		Phone: account.Phone(),

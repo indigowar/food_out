@@ -17,10 +17,10 @@ var (
 //go:generate go run github.com/matryer/moq -out storage_moq_test.go . Storage
 
 type Storage interface {
-	GetAll(ctx context.Context) ([]*domain.Account, error)
-	GetByID(ctx context.Context, id uuid.UUID) (*domain.Account, error)
-	GetByPhone(ctx context.Context, phone string) (*domain.Account, error)
-	Add(ctx context.Context, account *domain.Account) error
+	GetAll(ctx context.Context) ([]domain.Account, error)
+	GetByID(ctx context.Context, id uuid.UUID) (domain.Account, error)
+	GetByPhone(ctx context.Context, phone string) (domain.Account, error)
+	Add(ctx context.Context, account domain.Account) error
 	Remove(ctx context.Context, id uuid.UUID) error
-	Update(ctx context.Context, account *domain.Account) error
+	Update(ctx context.Context, account domain.Account) error
 }
