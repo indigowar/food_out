@@ -9,13 +9,13 @@ SELECT * FROM accounts WHERE phone = sqlc.arg(phone)::text;
 SELECT * FROM accounts;
 
 -- name: InsertAccount :exec
-INSERT INTO accounts (id, phone, password, name, profile_picture)
+INSERT INTO accounts (id, phone, password, name, profile)
 VALUES (
     sqlc.arg(id)::uuid,
     sqlc.arg(phone)::text,
     sqlc.arg(password)::text,
     sqlc.narg(name),
-    sqlc.narg(profile_picture)
+    sqlc.narg(profile)
 );
 
 -- name: DeleteAccount :exec
@@ -27,6 +27,6 @@ UPDATE accounts
         phone = sqlc.arg(phone)::text,
         password = sqlc.arg(password)::text,
         name = sqlc.narg(name)::text,
-        profile_picture = sqlc.narg(profile_picture)::text
+        profile = sqlc.narg(profile)::text
     WHERE id = sqlc.arg(id)::uuid
 ;

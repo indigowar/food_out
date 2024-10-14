@@ -48,7 +48,7 @@ func (s *Storage) GetAll(ctx context.Context) ([]*domain.Account, error) {
 
 // GetByID implements service.Storage.
 func (s *Storage) GetByID(ctx context.Context, id uuid.UUID) (*domain.Account, error) {
-	a, err := s.queries.GetAccountByID(ctx, pgtype.UUID{Bytes: id, Valid: true})
+	a, err := s.queries.GetAccountByID(ctx, id)
 	if err != nil {
 		// todo: add proper error handling for storage
 		return nil, err
@@ -71,17 +71,17 @@ func (s *Storage) GetByPhone(ctx context.Context, phone string) (*domain.Account
 // Remove implements service.Storage.
 func (s *Storage) Remove(ctx context.Context, id uuid.UUID) error {
 	// todo: add proper error handling for storage
-	return s.queries.DeleteAccount(ctx, pgtype.UUID{Bytes: id, Valid: true})
+	return s.queries.DeleteAccount(ctx, id)
 }
 
 // Update implements service.Storage.
 func (s *Storage) Update(ctx context.Context, account *domain.Account) error {
 	params := gen.UpdateAccountParams{
-		Phone:          account.Phone(),
-		Password:       account.Password(),
-		Name:           pgtype.Text{},
-		ProfilePicture: pgtype.Text{},
-		ID:             pgtype.UUID{Bytes: account.ID(), Valid: true},
+		Phone:    account.Phone(),
+		Password: account.Password(),
+		Name:     pgtype.Text{},
+		Profile:  pgtype.Text{},
+		ID:       account.ID(),
 	}
 
 	if account.HasName() {
@@ -89,7 +89,7 @@ func (s *Storage) Update(ctx context.Context, account *domain.Account) error {
 	}
 
 	if account.HasProfilePicture() {
-		params.ProfilePicture = pgtype.Text{String: account.ProfilePicture().String(), Valid: true}
+		params.Profile = pgtype.Text{String: account.ProfilePicture().String(), Valid: true}
 	}
 
 	// todo: add proper error handling for storage
@@ -97,18 +97,6 @@ func (s *Storage) Update(ctx context.Context, account *domain.Account) error {
 }
 
 func NewStorage(conn *pgx.Conn) *Storage {
-	migration := `
-		CREATE TABLE IF NOT EXISTS accounts(
-			id UUID PRIMARY KEY,
-			phone VARCHAR(32) UNIQUE NOT NULL,
-			password VARCHAR(1024) NOT NULL,
-			name VARCHAR(64),
-			profile_picture VARCHAR(2048)
-		);
-	`
-
-	conn.Exec(context.Background(), migration)
-
 	return &Storage{
 		queries: gen.New(conn),
 	}

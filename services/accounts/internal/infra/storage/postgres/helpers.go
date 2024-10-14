@@ -22,16 +22,16 @@ func toModel(a gen.Account) domain.Account {
 	if a.ProfilePicture.Valid {
 		url, _ = url.Parse(a.ProfilePicture.String)
 	}
-	return domain.NewAccountRaw(a.ID.Bytes, a.Phone, a.Password, name, url)
+	return domain.NewAccountRaw(a.ID, a.Phone, a.Password, name, url)
 }
 
 func createInsertParams(account *domain.Account) gen.InsertAccountParams {
 	params := gen.InsertAccountParams{
-		ID:             pgtype.UUID{Bytes: account.ID(), Valid: true},
-		Phone:          account.Phone(),
-		Password:       account.Password(),
-		Name:           pgtype.Text{},
-		ProfilePicture: pgtype.Text{},
+		ID:       account.ID(),
+		Phone:    account.Phone(),
+		Password: account.Password(),
+		Name:     pgtype.Text{},
+		Profile:  pgtype.Text{},
 	}
 
 	if account.HasName() {
@@ -39,7 +39,7 @@ func createInsertParams(account *domain.Account) gen.InsertAccountParams {
 	}
 
 	if account.HasProfilePicture() {
-		params.ProfilePicture = pgtype.Text{String: account.ProfilePicture().String(), Valid: true}
+		params.Profile = pgtype.Text{String: account.ProfilePicture().String(), Valid: true}
 	}
 
 	return params
