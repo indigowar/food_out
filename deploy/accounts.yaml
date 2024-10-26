@@ -1,0 +1,73 @@
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: food-out-accounts
+  labels:
+    app: food-out-accounts
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: food-out-accounts
+  template:
+    metadata:
+      labels:
+        app: food-out-accounts 
+    spec:
+      containers:
+        - name: accounts
+          image: indigowar/food_out_accounts
+          ports:
+            - containerPort: 80
+          env:
+            - name: POSTGRES_HOST
+              value: "postgres"
+            - name: POSTGRES_PORT
+              value: "5432"
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-credentials
+                  key: POSTGRES_USER
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-credentials
+                  key: POSTGRES_PASSWORD
+            - name: POSTGRES_DB
+              valueFrom:
+                configMapKeyRef:
+                  name: postgres-cm
+                  key: POSTGRES_DB
+            - name: KAFKA_HOST
+              value: "kafka"
+            - name: KAFKA_PORT
+              value: "9092"
+            - name: KAFKA_ACCOUNT_CREATED_TOPIC
+              valueFrom:
+                configMapKeyRef:
+                  name: kafka-cm
+                  key: TOPIC_ACCOUNT_CREATED
+            - name: KAFKA_ACCOUNT_DELETED_TOPIC
+              valueFrom:
+                configMapKeyRef:
+                  name: kafka-cm
+                  key: TOPIC_ACCOUNT_DELETED
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: food-out-accounts
+spec:
+  selector:
+    app: food-out-accounts
+  ports:
+    - port: 80
+      targetPort: 80
+      protocol: TCP
+  type: ClusterIP
+

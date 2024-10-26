@@ -25,6 +25,18 @@ down:
 		-f build/traefik.yml \
 	down
 
+apply:
+	kubectl apply \
+		-f build/k8s/kafka.yaml \
+		-f build/k8s/postgresql.yaml \
+		-f build/k8s/traefik.yaml
+
+delete:
+	kubectl delete \
+		-f build/k8s/kafka.yaml \
+		-f build/k8s/postgresql.yaml \
+		-f build/k8s/traefik.yaml
+
 run:
 	@echo "coming soon..."
 

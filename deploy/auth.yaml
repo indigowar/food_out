@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: food-out-auth
+  labels:
+    app: food-out-auth
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: food-out-auth
+  template:
+    metadata:
+      labels:
+        app: food-out-auth
+    containers:
+      - name: food-out-auth
+        image: indigowar/food_out_auth:latest
+        ports:
+          - containerPort: 80
+        env:
+          - name: REDIS_HOST
+            value: redis
+          - name: REDIS_PORT
+            value: 6379
+          - name: REDIS_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: redis-credentials
+                key: REDIS_PASSWORD
+          - name: REDIS_DB
+            valueFrom:
+              secretKeyRef:
+                name: redis-credentials
+                key: REDIS_DB
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: food-out-auth
+spec:
+  selector:
+    app: food-out-auth
+  ports:
+    - port: 80
+      targetPort: 80
+      protocol: TCP
+  type: ClusterIP
+
